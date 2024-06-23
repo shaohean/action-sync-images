@@ -39,9 +39,5 @@ jobs:
     - name: Use Skopeo Tools Sync Image to Docker Hub
       run: |
         #!/usr/bin/env bash
-        skopeo copy --all docker://registry.k8s.io/kube-apiserver:v1.27.4 docker://registry.cn-hangzhou.aliyuncs.com/external-dns-native/kube-apiserver:v1.27.4
-        skopeo copy --all docker://registry.k8s.io/kube-controller-manager:v1.27.4 docker://registry.cn-hangzhou.aliyuncs.com/external-dns-native/kube-controller-manager:v1.27.4
-        skopeo copy --all docker://registry.k8s.io/kube-scheduler:v1.27.4 docker://registry.cn-hangzhou.aliyuncs.com/external-dns-native/kube-scheduler:v1.27.4
-        skopeo copy --all docker://registry.k8s.io/kube-proxy:v1.27.4 docker://registry.cn-hangzhou.aliyuncs.com/external-dns-native/kube-proxy:v1.27.4
-        skopeo copy --all docker://registry.k8s.io/etcd:3.5.7-0 docker://registry.cn-hangzhou.aliyuncs.com/external-dns-native/etcd:3.5.7-0
-  
+        skopeo copy --all docker://docker.io/jenkinsci/blueocean docker://registry.cn-hangzhou.aliyuncs.com/soft24/jenkinsci/blueocean
+        skopeo copy --all docker://docker.io/kube-controller-manager:v1.27.4 docker://registry.cn-hangzhou.aliyuncs.com/soft24/kube-controller-manager:v1.27.4
