@@ -43,6 +43,5 @@ jobs:
         skopeo copy --all docker://registry.k8s.io/kube-controller-manager:v1.27.4 docker://registry.cn-hangzhou.aliyuncs.com/external-dns-native/kube-controller-manager:v1.27.4
         skopeo copy --all docker://registry.k8s.io/kube-scheduler:v1.27.4 docker://registry.cn-hangzhou.aliyuncs.com/external-dns-native/kube-scheduler:v1.27.4
         skopeo copy --all docker://registry.k8s.io/kube-proxy:v1.27.4 docker://registry.cn-hangzhou.aliyuncs.com/external-dns-native/kube-proxy:v1.27.4
-        skopeo copy --all docker://registry.k8s.io/pause:3.9 docker://docker.io/registry.cn-hangzhou.aliyuncs.com/external-dns-native/pause:3.9
         skopeo copy --all docker://registry.k8s.io/etcd:3.5.7-0 docker://registry.cn-hangzhou.aliyuncs.com/external-dns-native/etcd:3.5.7-0
   
