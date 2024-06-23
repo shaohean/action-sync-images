@@ -39,5 +39,5 @@ jobs:
     - name: Use Skopeo Tools Sync Image to Docker Hub
       run: |
         #!/usr/bin/env bash
-        skopeo copy --all docker://docker.io/jenkinsci/blueocean docker://registry.cn-hangzhou.aliyuncs.com/soft24/jenkinsci/blueocean
+        skopeo copy --all docker://docker.io/jenkinsci/blueocean docker://registry.cn-hangzhou.aliyuncs.com/soft24/blueocean
         skopeo copy --all docker://docker.io/kube-controller-manager:v1.27.4 docker://registry.cn-hangzhou.aliyuncs.com/soft24/kube-controller-manager:v1.27.4
