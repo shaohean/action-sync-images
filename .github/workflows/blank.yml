@@ -1,0 +1,47 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+run-name: ${{ github.actor }} is Sync Images to DockerHub.
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "syncimages"
+  syncimages:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repos
+      uses: actions/checkout@v3
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2.9.1
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2.2.0
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        logout: false
+
+      # Runs a set of commands using the runners shell
+    # 使用shell命令批量同步所需的镜像到dockerHub中
+    - name: Use Skopeo Tools Sync Image to Docker Hub
+      run: |
+        #!/usr/bin/env bash
+        skopeo copy --all docker://registry.k8s.io/kube-apiserver:v1.27.4 docker://registry.cn-hangzhou.aliyuncs.com/external-dns-native/kube-apiserver:v1.27.4
+        skopeo copy --all docker://registry.k8s.io/kube-controller-manager:v1.27.4 docker://registry.cn-hangzhou.aliyuncs.com/external-dns-native/kube-controller-manager:v1.27.4
+        skopeo copy --all docker://registry.k8s.io/kube-scheduler:v1.27.4 docker://registry.cn-hangzhou.aliyuncs.com/external-dns-native/kube-scheduler:v1.27.4
+        skopeo copy --all docker://registry.k8s.io/kube-proxy:v1.27.4 docker://registry.cn-hangzhou.aliyuncs.com/external-dns-native/kube-proxy:v1.27.4
+        skopeo copy --all docker://registry.k8s.io/pause:3.9 docker://docker.io/registry.cn-hangzhou.aliyuncs.com/external-dns-native/pause:3.9
+        skopeo copy --all docker://registry.k8s.io/etcd:3.5.7-0 docker://registry.cn-hangzhou.aliyuncs.com/external-dns-native/etcd:3.5.7-0
+  
