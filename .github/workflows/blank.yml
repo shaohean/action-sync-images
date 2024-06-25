@@ -39,5 +39,5 @@ jobs:
     - name: Use Skopeo Tools Sync Image to Docker Hub
       run: |
         #!/usr/bin/env bash
-        skopeo copy --all docker://docker.io/owncloudci/drone-docker-buildx docker://registry.cn-hangzhou.aliyuncs.com/drone-docker-buildx
+        skopeo copy --all docker://docker.io/owncloudci/drone-docker-buildx:1 docker://registry.cn-hangzhou.aliyuncs.com/drone-docker-buildx:1
         skopeo copy --all docker://docker.io/kube-controller-manager:v1.27.4 docker://registry.cn-hangzhou.aliyuncs.com/soft24/kube-controller-manager:v1.27.4
