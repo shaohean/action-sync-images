@@ -42,4 +42,4 @@ jobs:
         skopeo copy --all docker://docker.elastic.co/elasticsearch/elasticsearch:7.6.2 docker://registry.cn-hangzhou.aliyuncs.com/soft24/elasticsearch:7.6.2
         skopeo copy --all docker://docker.elastic.co/logstash/logstash:7.6.2 docker://registry.cn-hangzhou.aliyuncs.com/soft24/logstash:7.6.2
         skopeo copy --all docker://docker.elastic.co/kibana/kibana:7.6.2 docker://registry.cn-hangzhou.aliyuncs.com/soft24/kibana:7.6.2
-        skopeo copy --all docker://docker.io/library/adminer docker://registry.cn-hangzhou.aliyuncs.com/soft24/adminer
+        skopeo copy --all docker://docker.io/library/mongo:4.4.5 docker://registry.cn-hangzhou.aliyuncs.com/soft24/mongo:4.4.5
