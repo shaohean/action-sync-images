@@ -1,2 +1,2 @@
 FROM registry.cn-hongkong.aliyuncs.com/soft24/gcc:12.4
-RUN apt update && apt install java-*openjdk-1.8.0* 
+RUN apt update && apt install java-* 
