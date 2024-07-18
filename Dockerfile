@@ -1,2 +1,2 @@
-FROM registry.cn-hongkong.aliyuncs.com/soft24/gcc:12.4
-RUN apt update  &&apt install -y java-* 
+FROM continuumio/anaconda3:2024.06-1
+RUN pip install git+https://github.com/amazon-science/chronos-forecasting.git
