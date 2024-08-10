@@ -3,4 +3,4 @@
 #FROM alpine
 #RUN  apt update;apt install -y curl && curl -ikv  -o harbor.tar.gz https://objects.githubusercontent.com/github-production-release-asset-2e65be/50613991/dc6c4622-1b12-4f1b-9ead-b0c0cda51ad2?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=releaseassetproduction%2F20240726%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240726T084646Z&X-Amz-Expires=300&X-Amz-Signature=3b91fce1d166437d191c9844ae300cb324b5eaacd40fc8c7b8f4151866c5c9d8&X-Amz-SignedHeaders=host&actor_id=0&key_id=0&repo_id=50613991&response-content-disposition=attachment%3B%20filename%3Dharbor-offline-installer-v2.10.3.tgz&response-content-type=application%2Foctet-stream
 FROM alpine:3.19
-RUN apk add go && apk add curl && curl -LOk  https://github.com/harness/gitness/archive/refs/tags/v2.24.0.tar.gz && tar -xf v2.24.0.tar.gz &&go env |grep -i cgo && cd gitness-2.24.0/scripts/ && sh build.sh 
+RUN apk add go curl  gcc libc6-compat && curl -LOk  https://github.com/harness/gitness/archive/refs/tags/v2.24.0.tar.gz && tar -xf v2.24.0.tar.gz &&go env |grep -i cgo && cd gitness-2.24.0/scripts/ && sh build.sh 
