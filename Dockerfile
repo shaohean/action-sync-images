@@ -6,7 +6,6 @@ FROM golang:1.22.6-alpine3.20 AS Builder
 
 RUN apk add build-base && \
     go env -w GO111MODULE=on && \
-    go env -w GOPROXY=https://mirrors.aliyun.com/goproxy/,direct
 
 ENV DRONE_VERSION 2.24.0
 
@@ -15,20 +14,15 @@ WORKDIR /src
 # Build with online code
 RUN apk add curl && curl -L https://github.com/harness/gitness/archive/refs/tags/v${DRONE_VERSION}.tar.gz -o v${DRONE_VERSION}.tar.gz && \
     tar zxf v${DRONE_VERSION}.tar.gz && rm v${DRONE_VERSION}.tar.gz
+RUN apk add -U --no-cache ca-certificates
 
 WORKDIR /src/gitness-2.24.0/scripts/
-
-RUN go mod download
 
 ENV CGO_CFLAGS="-g -O2 -Wno-return-local-addr"
 
 RUN  sh build.sh
 
 
-
-FROM alpine:3.19 AS Certs
-
-RUN apk add -U --no-cache ca-certificates
 
 
 
@@ -49,7 +43,7 @@ ENV DRONE_SERVER_HOST=localhost
 ENV DRONE_DATADOG_ENABLED=true
 ENV DRONE_DATADOG_ENDPOINT=https://stats.drone.ci/api/v1/series
 
-COPY --from=Certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=Builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=Builder /src/gitness-2.24.0/scripts/release/linux/drone-server /bin/drone-server
 ENTRYPOINT ["/bin/drone-server"]
 
