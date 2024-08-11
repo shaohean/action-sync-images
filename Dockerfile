@@ -46,7 +46,3 @@ ENV DRONE_DATADOG_ENDPOINT=https://stats.drone.ci/api/v1/series
 COPY --from=Builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=Builder /src/gitness-2.24.0/scripts/release/linux/drone-server /bin/drone-server
 ENTRYPOINT ["/bin/drone-server"]
-
-COPY --from=Certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=Builder /src/gitness-2.24.0/drone-server /bin/drone-server
-ENTRYPOINT ["/bin/drone-server"]
