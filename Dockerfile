@@ -36,7 +36,7 @@ FROM alpine:3.19
 EXPOSE 80 443
 VOLUME /data
 
-RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
+RUN if [[ ! -e /etc/nsswitch.conf ]] ; then echo 'hosts: files dns' > /etc/nsswitch.conf ; fi
 
 ENV GODEBUG netdns=go
 ENV XDG_CACHE_HOME /data
