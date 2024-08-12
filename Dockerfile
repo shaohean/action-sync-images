@@ -20,7 +20,7 @@ WORKDIR /src/gitness-2.24.0/scripts/
 
 ENV CGO_CFLAGS="-g -O2 -Wno-return-local-addr"
 
-RUN  sh build.sh
+RUN     go env -w CGO_ENABLE=1  && go env && sh build.sh
 
 
 
