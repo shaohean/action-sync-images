@@ -39,7 +39,7 @@ jobs:
       with:
         file: ./Dockerfile
         push: true
-        tags: registry.cn-hongkong.aliyuncs.com/soft24/python:3.10.1
+        tags: registry.cn-hangzhou.aliyuncs.com/soft24/python:3.10.1
         
       # Runs a set of commands using the runners shell
     # 使用shell命令批量同步所需的镜像到dockerHub中
