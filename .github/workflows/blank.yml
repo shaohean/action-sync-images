@@ -39,14 +39,14 @@ jobs:
       with:
         file: ./Dockerfile
         push: true
-        tags: registry.cn-hangzhou.aliyuncs.com/soft24/python:3.10.1
+        tags: registry.cn-hangzhou.aliyuncs.com/soft24/gxh:v1.0.0
         
       # Runs a set of commands using the runners shell
     # 使用shell命令批量同步所需的镜像到dockerHub中
-    - name: Use Skopeo Tools Sync Image to Docker Hub
-      run: |
-        #!/usr/bin/env bash
-        skopeo copy --all docker://docker.elastic.co/elasticsearch/elasticsearch:7.17.9 docker://registry.cn-hangzhou.aliyuncs.com/soft24/elasticsearch:7.17.9
-        skopeo copy --all docker://docker.elastic.co/logstash/logstash:7.17.9 docker://registry.cn-hangzhou.aliyuncs.com/soft24/logstash:7.17.9
-        skopeo copy --all docker://docker.elastic.co/kibana/kibana:7.17.9 docker://registry.cn-hangzhou.aliyuncs.com/soft24/kibana:7.17.9
-        skopeo copy --all docker://docker.io/library/gcc:12.4 docker://registry.cn-hangzhou.aliyuncs.com/soft24/gcc:12.4
+    #- name: Use Skopeo Tools Sync Image to Docker Hub
+    #  run: |
+    #    #!/usr/bin/env bash
+    #    skopeo copy --all docker://docker.elastic.co/elasticsearch/elasticsearch:7.17.9 docker://registry.cn-hangzhou.aliyuncs.com/soft24/elasticsearch:7.17.9
+    #    skopeo copy --all docker://docker.elastic.co/logstash/logstash:7.17.9 docker://registry.cn-hangzhou.aliyuncs.com/soft24/logstash:7.17.9
+    #    skopeo copy --all docker://docker.elastic.co/kibana/kibana:7.17.9 docker://registry.cn-hangzhou.aliyuncs.com/soft24/kibana:7.17.9
+    #    skopeo copy --all docker://docker.io/library/gcc:12.4 docker://registry.cn-hangzhou.aliyuncs.com/soft24/gcc:12.4
