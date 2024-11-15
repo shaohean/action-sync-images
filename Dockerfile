@@ -8,5 +8,10 @@
 #COPY --from=base /data/drone/drone-server /root/drone-server
 #COPY --from=base /data/drone/drone-server-oss /root/drone-server-oss
 
-FROM continuumio/anaconda:2023.03-1
-RUN  conda install  pytorch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1 pytorch-cuda=12.2  ; conda install --download-only pytorch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1 pytorch-cuda=12.1 -c pytorch -c nvidia
+#FROM continuumio/anaconda:2023.03-1
+#RUN  conda install  pytorch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1 pytorch-cuda=12.2  ; conda install --download-only pytorch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1 pytorch-cuda=12.1 -c pytorch -c nvidia
+FROM openjdk:8u312-slim
+ENV  WORK_HOME=/home/admin CATALINA_HOME=/home/admin/apache-tomcat-8.5.42 
+RUN apt update &&apt install -y vim unzip binutils net-tools tcpdump curl wget telnet lsof dnsutils iputils-ping procps && ln -s -f /bin/bash /bin/sh && echo "alias ll='ls -l --color=auto'" >>/etc/profile && source /etc/profile
+WORKDIR /home/admin
+CMD ["/bin/sh","-c","bin/start.sh"]
