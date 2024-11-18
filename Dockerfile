@@ -10,8 +10,11 @@
 
 #FROM continuumio/anaconda:2023.03-1
 #RUN  conda install  pytorch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1 pytorch-cuda=12.2  ; conda install --download-only pytorch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1 pytorch-cuda=12.1 -c pytorch -c nvidia
-FROM openjdk:8u312-slim
-ENV  WORK_HOME=/home/admin CATALINA_HOME=/home/admin/apache-tomcat-8.5.42 
-RUN /bin/bash -c "apt update &&apt install -y vim unzip binutils net-tools tcpdump curl wget telnet lsof dnsutils iputils-ping procps && ln -s -f /bin/bash /bin/sh && echo \"alias ll='ls -l --color=auto'\" >>/etc/profile && source /etc/profile && apt cleall all" 
-WORKDIR /home/admin
-CMD ["/bin/sh","-c","bin/start.sh"]
+#FROM openjdk:8u312-slim
+#ENV  WORK_HOME=/home/admin CATALINA_HOME=/home/admin/apache-tomcat-8.5.42 
+#RUN /bin/bash -c "apt update &&apt install -y vim unzip binutils net-tools tcpdump curl wget telnet lsof dnsutils iputils-ping procps && ln -s -f /bin/bash /bin/sh && echo \"alias ll='ls -l --color=auto'\" >>/etc/profile && source /etc/profile && apt cleall all" 
+#WORKDIR /home/admin
+#CMD ["/bin/sh","-c","bin/start.sh"]
+
+FROM maven
+RUN apt update && apt install -y rpm yarn && wget https://www-eu.apache.org/dist/ambari/ambari-2.7.8/apache-ambari-2.7.8-src.tar.gz && tar xfvz apache-ambari-2.7.8-src.tar.gz && cd apache-ambari-2.7.8-src && mvn versions:set -DnewVersion=2.7.8.0.0 && pushd ambari-metrics && mvn versions:set -DnewVersion=2.7.8.0.0 && popd && mvn -B clean install rpm:rpm -DnewVersion=2.7.8.0.0 -DbuildNumber=da8f1b9b5a799bfa8e2d8aa9ab31d6d5a1cc31a0 -DskipTests -Dpython.ver="python >= 2.6"
