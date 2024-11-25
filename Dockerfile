@@ -37,4 +37,4 @@
 
 FROM  python:3.8
 #RUN  sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && apk add gcc build-base musl-dev python3-dev libffi-dev  && pip install --upgrade pip && pip install cryptography==3.1.1 matplotlib==3.3.2 numpy==1.19.2 pandas==1.1.3 PyMySQL==1.0.2 scikit_learn==0.23.2 scipy==1.5.2 SQLAlchemy==1.3.20 statsmodels==0.12.0
-RUN pip install cryptography==3.1.1 matplotlib==3.3.2 numpy==1.19.2 pandas==1.1.3 PyMySQL==1.0.2 scikit_learn==0.23.2 scipy==1.5.2 SQLAlchemy==1.3.20 statsmodels==0.12.0
+RUN yum install -y python3-distutils setuptools wheel && pip install cryptography==3.1.1 matplotlib==3.3.2 numpy==1.19.2 pandas==1.1.3 PyMySQL==1.0.2 scikit_learn==0.23.2 scipy==1.5.2 SQLAlchemy==1.3.20 statsmodels==0.12.0
