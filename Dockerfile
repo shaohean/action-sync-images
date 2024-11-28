@@ -34,7 +34,9 @@
 
 #RUN ssh-keygen -f "/root/.ssh/id_rsa" -N ""
 #RUN wget -q https://www-eu.apache.org/dist/ambari/ambari-2.7.8/apache-ambari-2.7.8-src.tar.gz && tar xfz apache-ambari-2.7.8-src.tar.gz && cd apache-ambari-2.7.8-src && mvn -q versions:set -DnewVersion=2.7.8.0.0>/dev/null && pushd ambari-metrics && mvn -q versions:set -DnewVersion=2.7.8.0.0>/dev/null && popd && echo 1111111111111111111111111111111111111111 && mvn -X -B clean install rpm:rpm -DnewVersion=2.7.8.0.0 -DbuildNumber=da8f1b9b5a799bfa8e2d8aa9ab31d6d5a1cc31a0 -DskipTests -Dpython.ver="python >= 2.6"
+FROM  golang:1.22.8 AS base
+RUN  mkdir /data && cd /data && git clone https://github.com/drone/drone.git && cd drone && sed -i 's/5000/0/g' service/license/load.go && git checkout tags/v2.24.0 && go build -o drone-server  ./cmd/drone-server/  && go build -o drone-server-oss -tags "oss nolimit" ./cmd/drone-server/
 
-FROM  python:3.8
-#RUN  sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && apk add gcc build-base musl-dev python3-dev libffi-dev  && pip install --upgrade pip && pip install cryptography==3.1.1 matplotlib==3.3.2 numpy==1.19.2 pandas==1.1.3 PyMySQL==1.0.2 scikit_learn==0.23.2 scipy==1.5.2 SQLAlchemy==1.3.20 statsmodels==0.12.0
-RUN apt update && apt  install -y python3-distutils  && pip install cryptography==3.1.1 matplotlib==3.3.2 numpy==1.19.2 pandas==1.1.3 PyMySQL==1.0.2 scikit_learn==0.23.2 scipy==1.5.2 SQLAlchemy==1.3.20 statsmodels==0.12.0
+FROM alpine:latest
+COPY --from=base /data/drone/drone-server /root/drone-server
+COPY --from=base /data/drone/drone-server-oss /root/drone-server-oss
