@@ -41,4 +41,4 @@
 #COPY --from=base /data/drone/drone-server /root/drone-server
 #COPY --from=base /data/drone/drone-server-oss /root/drone-server-oss
 FROM centos:7
-RUN wget https://sonatype-download.global.ssl.fastly.net/repository/downloads-prod-group/3/nexus-3.80.0-06-linux-x86_64.tar.gz
+RUN curl -O https://sonatype-download.global.ssl.fastly.net/repository/downloads-prod-group/3/nexus-3.80.0-06-linux-x86_64.tar.gz
