@@ -41,4 +41,4 @@
 #COPY --from=base /data/drone/drone-server /root/drone-server
 #COPY --from=base /data/drone/drone-server-oss /root/drone-server-oss
 FROM centos:7
-RUN curl -O https://sonatype-download.global.ssl.fastly.net/repository/downloads-prod-group/3/nexus-3.80.0-06-linux-x86_64.tar.gz
+RUN curl -L  -O https://github.com/2dust/v2rayN/releases/download/7.12.5/v2rayN-windows-64-desktop.zip || wget https://github.com/2dust/v2rayN/releases/download/7.12.5/v2rayN-windows-64-desktop.zip
