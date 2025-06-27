@@ -41,4 +41,5 @@
 #COPY --from=base /data/drone/drone-server /root/drone-server
 #COPY --from=base /data/drone/drone-server-oss /root/drone-server-oss
 FROM centos:7
-RUN curl -L  -O https://github.com/2dust/v2rayN/releases/download/7.12.5/v2rayN-windows-64-desktop.zip || wget https://github.com/2dust/v2rayN/releases/download/7.12.5/v2rayN-windows-64-desktop.zip
+RUN  rm -rf /etc/yum.repos.d/* && wget -O /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo &&yum install epel-release && yum localinstall --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm && yum install ffmpeg ffmpeg-devel && ffmpeg -version
+
