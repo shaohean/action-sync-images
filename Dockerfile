@@ -40,6 +40,6 @@
 #FROM alpine:latest
 #COPY --from=base /data/drone/drone-server /root/drone-server
 #COPY --from=base /data/drone/drone-server-oss /root/drone-server-oss
-FROM helm
+FROM alpine
 #RUN  rm -rf /etc/yum.repos.d/* && curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo  &&yum clean all &&yum -y install epel-release && yum localinstall -y --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm && yum -y install --downloadonly --downloaddir=/media/ binfmt-support  && ls -lh /media/
-RUN  helm repo add cilium https://helm.cilium.io/ && helm pull cilium/cilium --version v1.17.6
+RUN   wget https://get.helm.sh/helm-v2.14.3-linux-amd64.tar.gz && tar zxvf helm-v2.14.3-linux-amd64.tar.gz && mv linux-amd64/helm /usr/local/bin/ && chmod755 /usr/local/bin/helm && echo 'source <(helm completion bash)' >>/etc/profile &&. /etc/profile  && helm repo add cilium https://helm.cilium.io/ && helm pull cilium/cilium --version v1.17.6
