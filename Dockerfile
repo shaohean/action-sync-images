@@ -40,6 +40,6 @@
 #FROM alpine:latest
 #COPY --from=base /data/drone/drone-server /root/drone-server
 #COPY --from=base /data/drone/drone-server-oss /root/drone-server-oss
-FROM alpine
+FROM ubuntu:24.04
 #RUN  rm -rf /etc/yum.repos.d/* && curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo  &&yum clean all &&yum -y install epel-release && yum localinstall -y --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm && yum -y install --downloadonly --downloaddir=/media/ binfmt-support  && ls -lh /media/
 RUN   wget -O get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && chmod 700 get_helm.sh && ./get_helm.sh && helm repo add zilliztech https://zilliztech.github.io/milvus-helm/ && helm pull zilliztech/milvus --version 5.0.2
