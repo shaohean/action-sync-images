@@ -47,5 +47,5 @@
 #FROM golang:1.24.0
 #RUN go install github.com/minio/minio@RELEASE.2025-10-15T17-29-55Z
 #### redhat9 安装libreoffice
-FROM redhat/ubi9:9.6 --platform=arm64
+FROM --platform=linux/arm64 redhat/ubi9:9.6
 RUN dnf install java-1.8.0-openjdk -y wget unzip net-tools -y && wget https://downloadarchive.documentfoundation.org/libreoffice/old/25.8.0.4/rpm/x86_64/LibreOffice_25.8.0.4_Linux_x86-64_rpm.tar.gz && wget https://downloadarchive.documentfoundation.org/libreoffice/old/25.8.0.4/rpm/x86_64/LibreOffice_25.8.0.4_Linux_x86-64_rpm_helppack_zh-CN.tar.gz && wget https://downloadarchive.documentfoundation.org/libreoffice/old/25.8.0.4/rpm/x86_64/LibreOffice_25.8.0.4_Linux_x86-64_rpm_langpack_zh-CN.tar.gz && wget https://downloadarchive.documentfoundation.org/libreoffice/old/25.8.0.4/rpm/x86_64/LibreOffice_25.8.0.4_Linux_x86-64_rpm_sdk.tar.gz 
