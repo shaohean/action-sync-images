@@ -43,5 +43,9 @@
 #FROM ubuntu:24.04
 #RUN  rm -rf /etc/yum.repos.d/* && curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo  &&yum clean all &&yum -y install epel-release && yum localinstall -y --nogpgcheck https://download1.rpmfusion.org/free/el/rpmfusion-free-release-7.noarch.rpm && yum -y install --downloadonly --downloaddir=/media/ binfmt-support  && ls -lh /media/
 #RUN   apt update && apt install wget curl -y && wget -O get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && chmod 700 get_helm.sh && ./get_helm.sh && helm repo add openebs-lvmlocalpv https://openebs.github.io/lvm-localpv  && helm repo update &&helm pull openebs-lvmlocalpv/lvm-localpv --version 1.6.0
-FROM golang:1.24.0
-RUN go install github.com/minio/minio@RELEASE.2025-10-15T17-29-55Z
+#### 编译minio
+#FROM golang:1.24.0
+#RUN go install github.com/minio/minio@RELEASE.2025-10-15T17-29-55Z
+#### redhat9 安装libreoffice
+FROM redhat/ubi9:9.6 --platform=arm64
+RUN dnf install java-1.8.0-openjdk -y wget unzip net-tools -y && wget https://downloadarchive.documentfoundation.org/libreoffice/old/25.8.0.4/rpm/x86_64/LibreOffice_25.8.0.4_Linux_x86-64_rpm.tar.gz && wget https://downloadarchive.documentfoundation.org/libreoffice/old/25.8.0.4/rpm/x86_64/LibreOffice_25.8.0.4_Linux_x86-64_rpm_helppack_zh-CN.tar.gz && wget https://downloadarchive.documentfoundation.org/libreoffice/old/25.8.0.4/rpm/x86_64/LibreOffice_25.8.0.4_Linux_x86-64_rpm_langpack_zh-CN.tar.gz && wget https://downloadarchive.documentfoundation.org/libreoffice/old/25.8.0.4/rpm/x86_64/LibreOffice_25.8.0.4_Linux_x86-64_rpm_sdk.tar.gz 
