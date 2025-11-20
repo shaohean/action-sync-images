@@ -46,6 +46,16 @@
 #### 编译minio
 #FROM golang:1.24.0
 #RUN go install github.com/minio/minio@RELEASE.2025-10-15T17-29-55Z
+
 #### redhat9 安装libreoffice
-FROM --platform=linux/arm64 redhat/ubi9:9.6
-RUN dnf install java-1.8.0-openjdk -y wget unzip net-tools -y && cd /mnt/ &&  wget https://downloadarchive.documentfoundation.org/libreoffice/old/25.8.0.4/rpm/aarch64/LibreOffice_25.8.0.4_Linux_aarch64_rpm.tar.gz && tar -zxf LibreOffice_25.8.0.4_Linux_aarch64_rpm.tar.gz && cd LibreOffice_25.8.0.4_Linux_aarch64_rpm/RPMS && dnf install -y *rpm && cd ../../ && rm -rf * && wget https://downloadarchive.documentfoundation.org/libreoffice/old/25.8.0.4/rpm/aarch64/LibreOffice_25.8.0.4_Linux_aarch64_rpm_helppack_zh-CN.tar.gz && wget https://downloadarchive.documentfoundation.org/libreoffice/old/25.8.0.4/rpm/aarch64/LibreOffice_25.8.0.4_Linux_aarch64_rpm_langpack_zh-CN.tar.gz && wget https://downloadarchive.documentfoundation.org/libreoffice/old/25.8.0.4/rpm/aarch64/LibreOffice_25.8.0.4_Linux_aarch64_rpm_sdk.tar.gz 
+#FROM --platform=linux/arm64 redhat/ubi9:9.6
+#RUN dnf install java-1.8.0-openjdk -y wget unzip net-tools -y && cd /mnt/ &&  wget https://downloadarchive.documentfoundation.org/libreoffice/old/25.8.0.4/rpm/aarch64/LibreOffice_25.8.0.4_Linux_aarch64_rpm.tar.gz && tar -zxf LibreOffice_25.8.0.4_Linux_aarch64_rpm.tar.gz && cd LibreOffice_25.8.0.4_Linux_aarch64_rpm/RPMS && dnf install -y *rpm && cd ../../ && rm -rf * && wget https://downloadarchive.documentfoundation.org/libreoffice/old/25.8.0.4/rpm/aarch64/LibreOffice_25.8.0.4_Linux_aarch64_rpm_helppack_zh-CN.tar.gz && wget https://downloadarchive.documentfoundation.org/libreoffice/old/25.8.0.4/rpm/aarch64/LibreOffice_25.8.0.4_Linux_aarch64_rpm_langpack_zh-CN.tar.gz && wget https://downloadarchive.documentfoundation.org/libreoffice/old/25.8.0.4/rpm/aarch64/LibreOffice_25.8.0.4_Linux_aarch64_rpm_sdk.tar.gz 
+
+
+#### 构建drone-kubenetes，用于arm推送
+FROM alpine:latest
+COPY update.sh /bin/update.sh
+RUN apk --no-cache add curl ca-certificates bash && curl -Lo /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v1.25.0/bin/linux/arm64/kubectl && \
+    chmod +x /usr/local/bin/kubectl /bin/update.sh
+ENTRYPOINT ["/bin/bash"]
+CMD ["/bin/update.sh"]
