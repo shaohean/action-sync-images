@@ -53,9 +53,33 @@
 
 
 #### 构建drone-kubenetes，用于arm推送
-FROM alpine:latest
-COPY update.sh /bin/update.sh
-RUN apk --no-cache add curl ca-certificates bash && curl -Lo /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v1.25.0/bin/linux/arm64/kubectl && \
-    chmod +x /usr/local/bin/kubectl /bin/update.sh
-ENTRYPOINT ["/bin/bash"]
-CMD ["/bin/update.sh"]
+#FROM alpine:latest
+#COPY update.sh /bin/update.sh
+#RUN apk --no-cache add curl ca-certificates bash && curl -Lo /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v1.25.0/bin/linux/arm64/kubectl && \
+#    chmod +x /usr/local/bin/kubectl /bin/update.sh
+#ENTRYPOINT ["/bin/bash"]
+#CMD ["/bin/update.sh"]
+
+####构建miniforge-25.9.1.0版本，并安装python3.12
+FROM ubuntu:24.04
+ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 CONDA_DIR=/opt/conda TARGETPLATFORM=linux/amd64 MINIFORGE_VERSION=25.9.1-0 MINIFORGE_NAME=Miniforge3 PATH=/opt/conda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+RUN apt-get update > /dev/null && \
+    apt-get install --no-install-recommends --yes \
+    wget \
+    bzip2 \
+    ca-certificates \
+    git \
+    tini \
+    > /dev/null && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* &&  wget --no-hsts --quiet https://github.com/conda-forge/miniforge/releases/download/${MINIFORGE_VERSION}/${MINIFORGE_NAME}-${MINIFORGE_VERSION}-Linux-$(uname -m).sh -O /tmp/miniforge.sh && \
+    /bin/bash /tmp/miniforge.sh -b -p ${CONDA_DIR} && \
+    rm /tmp/miniforge.sh && \
+    conda clean --tarballs --index-cache --packages --yes && \
+    find ${CONDA_DIR} -follow -type f -name '*.a' -delete && \
+    find ${CONDA_DIR} -follow -type f -name '*.pyc' -delete && \
+    conda clean --force-pkgs-dirs --all --yes && \
+    echo ". ${CONDA_DIR}/etc/profile.d/conda.sh && conda activate base" >> /etc/skel/.bashrc && \
+    echo ". ${CONDA_DIR}/etc/profile.d/conda.sh && conda activate base" >> ~/.bashrc && conda update conda -y && conda create -n myenv python=3.12 -y && conda activate myenv
+ENTRYPOINT ["tini", "--"]
+CMD ["/bin/bash"]
