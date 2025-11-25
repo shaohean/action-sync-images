@@ -61,25 +61,75 @@
 #CMD ["/bin/update.sh"]
 
 ####构建miniforge-25.9.1.0版本，并安装python3.12
-FROM ubuntu:24.04
-ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 CONDA_DIR=/opt/conda TARGETPLATFORM=linux/amd64 MINIFORGE_VERSION=25.9.1-0 MINIFORGE_NAME=Miniforge3 PATH=/opt/conda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-RUN apt-get update > /dev/null && \
-    apt-get install --no-install-recommends --yes \
-    wget \
-    bzip2 \
-    ca-certificates \
-    git \
-    tini \
-    > /dev/null && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* &&  wget --no-hsts --quiet https://github.com/conda-forge/miniforge/releases/download/${MINIFORGE_VERSION}/${MINIFORGE_NAME}-${MINIFORGE_VERSION}-Linux-$(uname -m).sh -O /tmp/miniforge.sh && \
-    /bin/bash /tmp/miniforge.sh -b -p ${CONDA_DIR} && \
-    rm /tmp/miniforge.sh && \
-    conda clean --tarballs --index-cache --packages --yes && \
-    find ${CONDA_DIR} -follow -type f -name '*.a' -delete && \
-    find ${CONDA_DIR} -follow -type f -name '*.pyc' -delete && \
-    conda clean --force-pkgs-dirs --all --yes && \
-    echo ". ${CONDA_DIR}/etc/profile.d/conda.sh && conda activate base" >> /etc/skel/.bashrc && \
-    echo ". ${CONDA_DIR}/etc/profile.d/conda.sh && conda activate base" >> ~/.bashrc && conda update conda -y && conda create -n myenv python=3.12 -y &&  conda init bash && export PATH="/opt/conda/bin:$PATH" >> /root/.bashrc && echo 'conda activate myenv' >> /root/.bashrc 
-ENTRYPOINT ["tini", "--"]
-CMD ["/bin/bash"]
+#FROM ubuntu:24.04
+#ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 CONDA_DIR=/opt/conda TARGETPLATFORM=linux/amd64 MINIFORGE_VERSION=25.9.1-0 MINIFORGE_NAME=Miniforge3 PATH=/opt/conda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+#RUN apt-get update > /dev/null && \
+#    apt-get install --no-install-recommends --yes \
+#    wget \
+#    bzip2 \
+#    ca-certificates \
+#    git \
+#    tini \
+#    > /dev/null && \
+#    apt-get clean && \
+#    rm -rf /var/lib/apt/lists/* &&  wget --no-hsts --quiet https://github.com/conda-forge/miniforge/releases/download/${MINIFORGE_VERSION}/${MINIFORGE_NAME}-${MINIFORGE_VERSION}-Linux-$(uname -m).sh -O /tmp/miniforge.sh && \
+#    /bin/bash /tmp/miniforge.sh -b -p ${CONDA_DIR} && \
+#    rm /tmp/miniforge.sh && \
+#    conda clean --tarballs --index-cache --packages --yes && \
+#    find ${CONDA_DIR} -follow -type f -name '*.a' -delete && \
+#    find ${CONDA_DIR} -follow -type f -name '*.pyc' -delete && \
+#    conda clean --force-pkgs-dirs --all --yes && \
+#    echo ". ${CONDA_DIR}/etc/profile.d/conda.sh && conda activate base" >> /etc/skel/.bashrc && \
+#    echo ". ${CONDA_DIR}/etc/profile.d/conda.sh && conda activate base" >> ~/.bashrc && conda update conda -y && conda create -n myenv python=3.12 -y &&  conda init bash && export PATH="/opt/conda/bin:$PATH" >> /root/.bashrc && echo 'conda activate myenv' >> /root/.bashrc 
+#ENTRYPOINT ["tini", "--"]
+#CMD ["/bin/bash"]
+
+FROM alpine:latest
+LABEL maintainer="pader <huangmnlove@163.com>"
+
+# 安装依赖
+RUN apk add --no-cache openjdk8-jre-base curl iputils ncurses vim libcurl bash
+
+# 设置环境变量
+ENV MODE="cluster" \
+    PREFER_HOST_MODE="ip"\
+    BASE_DIR="/home/nacos" \
+    CLASSPATH=".:/home/nacos/conf:$CLASSPATH" \
+    CLUSTER_CONF="/home/nacos/conf/cluster.conf" \
+    FUNCTION_MODE="all" \
+    JAVA_HOME="/usr/lib/jvm/java-1.8-openjdk" \
+    NACOS_USER="nacos" \
+    JAVA="/usr/lib/jvm/java-1.8-openjdk/bin/java" \
+    JVM_XMS="1g" \
+    JVM_XMX="1g" \
+    JVM_XMN="512m" \
+    JVM_MS="128m" \
+    JVM_MMS="320m" \
+    NACOS_DEBUG="n" \
+    TOMCAT_ACCESSLOG_ENABLED="false" \
+    TIME_ZONE="Asia/Shanghai"
+
+ARG NACOS_VERSION=2.4.0.1
+ARG HOT_FIX_FLAG=""
+
+WORKDIR $BASE_DIR
+
+# 下载并安装 Nacos
+RUN set -x \
+    && curl -SL "https://github.com/alibaba/nacos/releases/download/${NACOS_VERSION}${HOT_FIX_FLAG}/nacos-server-${NACOS_VERSION}.tar.gz" -o nacos-server.tar.gz \
+    && tar -xzvf nacos-server.tar.gz -C /home \
+    && rm -rf nacos-server.tar.gz /home/nacos/bin/* /home/nacos/conf/*.properties /home/nacos/conf/*.example /home/nacos/conf/nacos-mysql.sql \
+    && ln -snf /usr/share/zoneinfo/$TIME_ZONE /etc/localtime && echo $TIME_ZONE > /etc/timezone
+
+ADD bin/docker-startup.sh bin/docker-startup.sh
+ADD conf/application.properties conf/application.properties
+
+# 设置启动日志目录
+RUN mkdir -p logs \
+	&& touch logs/start.out \
+	&& ln -sf /dev/stdout logs/start.out \
+	&& ln -sf /dev/stderr logs/start.out \
+    && chmod +x bin/docker-startup.sh
+
+EXPOSE 8848
+ENTRYPOINT ["sh","bin/docker-startup.sh"]
