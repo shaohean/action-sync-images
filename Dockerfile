@@ -80,6 +80,6 @@ RUN apt-get update > /dev/null && \
     find ${CONDA_DIR} -follow -type f -name '*.pyc' -delete && \
     conda clean --force-pkgs-dirs --all --yes && \
     echo ". ${CONDA_DIR}/etc/profile.d/conda.sh && conda activate base" >> /etc/skel/.bashrc && \
-    echo ". ${CONDA_DIR}/etc/profile.d/conda.sh && conda activate base" >> ~/.bashrc && conda update conda -y && conda create -n myenv python=3.12 -y &&  conda init bash && export PATH="/opt/conda/bin:$PATH" >> /root/.bashrc && echo 'conda activate myenv' >> /root/.bashrc && source /root/.bashrc
+    echo ". ${CONDA_DIR}/etc/profile.d/conda.sh && conda activate base" >> ~/.bashrc && conda update conda -y && conda create -n myenv python=3.12 -y &&  conda init bash && export PATH="/opt/conda/bin:$PATH" >> /root/.bashrc && echo 'conda activate myenv' >> /root/.bashrc 
 ENTRYPOINT ["tini", "--"]
 CMD ["/bin/bash"]
