@@ -85,4 +85,4 @@
 #CMD ["/bin/bash"]
 
 FROM ghcr.io/oracle/oraclelinux8-instantclient:23
-RUN dnf install -y java-1.8.0-openjdk mysql postgresql 
+RUN dnf install -y java-1.8.0-openjdk mysql postgresql  && dnf clean all
