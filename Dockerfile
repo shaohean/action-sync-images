@@ -86,5 +86,5 @@
 
 #FROM ghcr.io/oracle/oraclelinux8-instantclient:23
 #RUN dnf install -y java-1.8.0-openjdk mysql postgresql  && dnf clean all
-FROM ubuntu:24.04
-RUN apt update && apt install -y curl wget && curl -LO https://dist.neo4j.org/rpm/neo4j-4.4.46-1.noarch.rpm ; curl -LO https://dist.neo4j.org/neo4j-community-4.4.46-unix.tar.gz
+FROM golang:1.24
+RUN go install github.com/drone/drone/cmd/drone-server
