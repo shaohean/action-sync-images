@@ -87,4 +87,5 @@
 #FROM ghcr.io/oracle/oraclelinux8-instantclient:23
 #RUN dnf install -y java-1.8.0-openjdk mysql postgresql  && dnf clean all
 FROM golang:1.24
-RUN go install github.com/drone/drone/cmd/drone-server
+RUN git clone --depth 1 --branch v2.26.0  https://github.com/harness/harness.git && cd harness && go install github.com/drone/drone/cmd/drone-server
+
