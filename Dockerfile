@@ -95,4 +95,5 @@ os.environ['TIKTOKEN_CACHE_DIR']='tiktoken_cache' \
 enc=tiktoken.get_encoding('gpt2') \
 print('vocab.bpe  sha256 :', enc._mergeable_ranks.hash) \
 print('encoder.json sha256 :', enc._tokenize.hash) \
-PY \
+PY
+RUN ls -lha && pwd
