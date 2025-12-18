@@ -86,6 +86,13 @@
 
 #FROM ghcr.io/oracle/oraclelinux8-instantclient:23
 #RUN dnf install -y java-1.8.0-openjdk mysql postgresql  && dnf clean all
-FROM golang:1.24rc2-alpine
-RUN apk add git && git clone --depth 1 --branch v2.26.0  https://github.com/harness/harness.git && cd harness && sed -i 's/5000/300000/g' service/license/load.go && go build -o drone-server ./cmd/drone-server && ls -lh /go/harness
-
+FROM python:3.12-slim
+RUN pip install -y tiktoken && mkdir tiktoken_cache && \
+python - <<'PY' \
+import tiktoken, os, shutil \
+from tiktoken.load import read_file_cached \
+os.environ['TIKTOKEN_CACHE_DIR']='tiktoken_cache' \
+enc=tiktoken.get_encoding('gpt2') \
+print('vocab.bpe  sha256 :', enc._mergeable_ranks.hash) \
+print('encoder.json sha256 :', enc._tokenize.hash) \
+PY \
