@@ -86,7 +86,7 @@
 
 #FROM ghcr.io/oracle/oraclelinux8-instantclient:23
 #RUN dnf install -y java-1.8.0-openjdk mysql postgresql  && dnf clean all
-FROM node:22.21.1
+FROM node:20.19.6
 RUN git clone --depth 1  --branch v7.17.29 https://github.com/elastic/kibana.git 
 RUN wget https://github.com/yarnpkg/yarn/releases/download/v1.22.22/yarn-v1.22.22.tar.gz && tar zxf yarn-v1.22.22.tar.gz && cp -a  yarn-v1.22.22/bin/yarn /usr/bin/
-RUN cd kibana && git switch -c 7.17.29 && yarn install --frozen-lockfile && yarn build --skip-os-packages
+RUN cd kibana && git switch -c 7.17.29 && yarn kbn bootstrap && yarn build --skip-os-packages
