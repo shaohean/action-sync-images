@@ -89,4 +89,4 @@
 FROM node:20.19.2
 RUN git clone --depth 1  --branch v7.17.29 https://github.com/elastic/kibana.git 
 RUN wget https://github.com/yarnpkg/yarn/releases/download/v1.22.22/yarn-v1.22.22.tar.gz && tar zxf yarn-v1.22.22.tar.gz && cp -a  yarn-v1.22.22/bin/yarn /usr/bin/
-RUN cd kibana && git switch -c 7.17.29 && sed -i '41s/false/true/' src/core/server/elasticsearch/version_check/es_kibana_version_compatability.js && cat src/core/server/elasticsearch/version_check/es_kibana_version_compatability.js && yarn kbn bootstrap && yarn build --skip-os-packages
+RUN cd kibana && git switch -c 7.17.29 && sed -i '41s/false/true/' src/core/server/elasticsearch/version_check/es_kibana_version_compatability.ts && cat src/core/server/elasticsearch/version_check/es_kibana_version_compatability.ts && yarn kbn bootstrap && yarn build --skip-os-packages
