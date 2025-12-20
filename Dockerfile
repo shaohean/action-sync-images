@@ -87,11 +87,18 @@
 #FROM ghcr.io/oracle/oraclelinux8-instantclient:23
 #RUN dnf install -y java-1.8.0-openjdk mysql postgresql  && dnf clean all
 
+
 #FROM node:20.19.2
 #RUN git clone --depth 1  --branch v7.17.29 https://github.com/elastic/kibana.git 
 #RUN wget https://github.com/yarnpkg/yarn/releases/download/v1.22.22/yarn-v1.22.22.tar.gz && tar zxf yarn-v1.22.22.tar.gz && cp -a  yarn-v1.22.22/bin/yarn /usr/bin/
 #RUN df -h  && cd kibana && git switch -c 7.17.29 && sed -i '41s/false/true/' src/core/server/elasticsearch/version_check/es_kibana_version_compatability.ts && cat src/core/server/elasticsearch/version_check/es_kibana_version_compatability.ts && yarn kbn bootstrap && yarn build --skip-os-packages && df -h  &&  cp -a /kibana/target/kibana-7.17.29-SNAPSHOT-linux-x86_64.tar.gz /var/lib/docker/ && cp -a /kibana/target/kibana-7.17.29-SNAPSHOT-linux-aarch64.tar.gz /var/lib/docker/ && cd /var/lib/docker/  && ls -lha && rm -rf /kibana
 
-FROM alpine
-RUN apk add wget && wget https://sqlite.org/2025/sqlite-tools-linux-x64-3510100.zip
-RUN sqlite3
+#FROM alpine
+#RUN apk add wget && wget https://sqlite.org/2025/sqlite-tools-linux-x64-3510100.zip
+#RUN sqlite3
+
+####编译drone-server
+FROM golang:1.24rc2-alpine
+RUN apk add git && git clone --depth 1 --branch v2.26.0  https://github.com/harness/harness.git && cd harness && git switch -c  2.26.0 && sed -i 's/5000/300000/g' service/license/load.go && go build -o drone-server ./cmd/drone-server && ls -lh /go/harness
+
+
