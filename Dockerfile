@@ -99,6 +99,6 @@
 
 ####编译drone-server
 FROM golang:1.24rc2-alpine
-RUN apk add git && git clone --depth 1 --branch v2.26.0  https://github.com/harness/harness.git && cd harness && git switch -c  2.26.0 && sed -i 's/5000/300000/g' service/license/load.go && go build -tags sqlite_omit_load_extension -o drone-server ./cmd/drone-server && ls -lh /go/harness
+RUN apk add git && git clone --depth 1 --branch v2.26.0  https://github.com/harness/harness.git && cd harness && git switch -c  2.26.0 && sed -i 's/5000/300000/g' service/license/load.go && go build -tags sqlite_omit_load_extension  -tags "nolimit"  -o drone-server ./cmd/drone-server && ls -lh /go/harness
 
 
