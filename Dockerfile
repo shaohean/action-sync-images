@@ -86,7 +86,12 @@
 
 #FROM ghcr.io/oracle/oraclelinux8-instantclient:23
 #RUN dnf install -y java-1.8.0-openjdk mysql postgresql  && dnf clean all
-FROM node:20.19.2
-RUN git clone --depth 1  --branch v7.17.29 https://github.com/elastic/kibana.git 
-RUN wget https://github.com/yarnpkg/yarn/releases/download/v1.22.22/yarn-v1.22.22.tar.gz && tar zxf yarn-v1.22.22.tar.gz && cp -a  yarn-v1.22.22/bin/yarn /usr/bin/
-RUN df -h  && cd kibana && git switch -c 7.17.29 && sed -i '41s/false/true/' src/core/server/elasticsearch/version_check/es_kibana_version_compatability.ts && cat src/core/server/elasticsearch/version_check/es_kibana_version_compatability.ts && yarn kbn bootstrap && yarn build --skip-os-packages && df -h  &&  cp -a /kibana/target/kibana-7.17.29-SNAPSHOT-linux-x86_64.tar.gz /var/lib/docker/ && cp -a /kibana/target/kibana-7.17.29-SNAPSHOT-linux-aarch64.tar.gz /var/lib/docker/ && cd /var/lib/docker/  && ls -lha && rm -rf /kibana
+
+#FROM node:20.19.2
+#RUN git clone --depth 1  --branch v7.17.29 https://github.com/elastic/kibana.git 
+#RUN wget https://github.com/yarnpkg/yarn/releases/download/v1.22.22/yarn-v1.22.22.tar.gz && tar zxf yarn-v1.22.22.tar.gz && cp -a  yarn-v1.22.22/bin/yarn /usr/bin/
+#RUN df -h  && cd kibana && git switch -c 7.17.29 && sed -i '41s/false/true/' src/core/server/elasticsearch/version_check/es_kibana_version_compatability.ts && cat src/core/server/elasticsearch/version_check/es_kibana_version_compatability.ts && yarn kbn bootstrap && yarn build --skip-os-packages && df -h  &&  cp -a /kibana/target/kibana-7.17.29-SNAPSHOT-linux-x86_64.tar.gz /var/lib/docker/ && cp -a /kibana/target/kibana-7.17.29-SNAPSHOT-linux-aarch64.tar.gz /var/lib/docker/ && cd /var/lib/docker/  && ls -lha && rm -rf /kibana
+
+FROM alpine
+RUN apk add wget && wget https://sqlite.org/2025/sqlite-tools-linux-x64-3510100.zip
+RUN sqlite3
