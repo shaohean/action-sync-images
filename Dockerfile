@@ -98,7 +98,10 @@
 #RUN sqlite3
 
 ####编译drone-server
-FROM golang:1.24rc2
-RUN apt update && apt install -y git && git clone --depth 1 --branch v2.26.0  https://github.com/harness/harness.git && cd harness && git switch -c  2.26.0 && sed -i 's/5000/300000/g' service/license/load.go && go build -tags "nolimit"  -o drone-server ./cmd/drone-server && ls -lh /go/harness
+#FROM golang:1.24rc2
+#RUN apt update && apt install -y git && git clone --depth 1 --branch v2.26.0  https://github.com/harness/harness.git && cd harness && git switch -c  2.26.0 && sed -i 's/5000/300000/g' service/license/load.go && go build -tags "nolimit"  -o drone-server ./cmd/drone-server && ls -lh /go/harness
 
+####onlyoffice-jdk11
+FROM onlyoffice/documentserver:8.0.1
+RUN apt update && apt install -y openjdk-11-jdk && touch /etc/nginx/conf.d/custom.conf
 
