@@ -107,5 +107,5 @@
 
 ####onlyoffice-jdk11
 FROM redhat/ubi10:10.1
-RUN dnf install  -y glibc-langpack-en  curl wget unzip telnet lsof net-tools bind-utils && localectl set-locale LANG=en_US.UTF-8 
+RUN dnf install  -y glibc-langpack-en  curl wget unzip  lsof net-tools bind-utils && localectl set-locale LANG=en_US.UTF-8 
 
