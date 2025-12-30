@@ -107,4 +107,4 @@
 
 ####onlyoffice-jdk11
 FROM redhat/ubi10:10.1
-RUN dnf install -y --disableplugin=subscription-manager glibc-langpack-en fontconfig dejavu-sans-fonts  curl wget unzip  lsof net-tools bind-utils && echo 'export LANG=en_US.UTF-8' >> /etc/profile && echo 'export LANGUAGE=en_US:en' >> /etc/profile && echo 'export LC_ALL=en_US.UTF-8' >> /etc/profile && source /etc/profile && locale  &&  && dnf clean all && rm -rf /var/cache/yum
+RUN dnf install -y --disableplugin=subscription-manager glibc-langpack-en fontconfig dejavu-sans-fonts  curl wget unzip  lsof net-tools bind-utils && echo 'export LANG=en_US.UTF-8' >> /etc/profile && echo 'export LANGUAGE=en_US:en' >> /etc/profile && echo 'export LC_ALL=en_US.UTF-8' >> /etc/profile && source /etc/profile && locale && dnf clean all && rm -rf /var/cache/yum
