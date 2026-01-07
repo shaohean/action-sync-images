@@ -1,10 +1,140 @@
+# ARM64 (aarch64) 单阶段 Dockerfile - 在 CentOS 7 容器内完整编译 LibreOffice 25.8.4.2
+# 构建时间: 8核约6-8小时，4核约12-15小时
+# 最终镜像包含: GCC 11编译器、完整源码、生成的RPM包
+
 FROM centos:7.9.2009
-RUN rm -f /etc/yum.repos.d/CentOS-Base.repo && curl -o /etc/yum.repos.d/CentOS-Base.repo  http://mirrors.aliyun.com/repo/Centos-altarch-7.repo
-RUN yum install -y wget && cd /mnt && wget https://archives.fedoraproject.org/pub/archive/epel/7/aarch64/Packages/e/epel-release-7-12.noarch.rpm && rpm -ivh epel-release-7-12.noarch.rpm && sed -i 's/^#baseurl=/baseurl=/' /etc/yum.repos.d/epel*.repo && sed -i 's/^mirrorlist/#mirrorlist/' /etc/yum.repos.d/epel*.repo && cat /etc/yum.repos.d/epel*.repo
-RUN yum clean all && yum makecache && yum repolist && yum install -y centos-release-scl-rh && sed -i 's/^#baseurl=/baseurl=/' /etc/yum.repos.d/*.repo && sed -i 's/^mirrorlist/#mirrorlist/' /etc/yum.repos.d/epel*.repo && cat /etc/yum.repos.d/*.repo && yum install -y devtoolset-11-gcc-c++ devtoolset-11-gcc &&  yum install -y gcc-c++ git perl-Archive-Zip perl-Digest-MD5 python3 curl wget unzip tar  make autoconf automake libtool pkgconfig flex bison gperf  fontconfig-devel libX11-devel libXext-devel libXrender-devel libXinerama-devel  libXrandr-devel libXt-devel libXcursor-devel libXcomposite-devel libXdamage-devel  libxcb-devel mesa-libGL-devel mesa-libEGL-devel libdrm-devel gtk3-devel  boost-devel openssl-devel nss-devel libxml2-devel cups-devel   rpm-build clang llvm-devel ncurses-devel vim
 
+# 构建参数
+ARG MAKE_JOBS=4
+ARG LO_VERSION=25.8.4.2
 
+# 0. 配置 ARM64 Vault源（CentOS 7已停更）
+RUN rm -f /etc/yum.repos.d/CentOS-*.repo && \
+    tee /etc/yum.repos.d/CentOS-AltArch.repo <<'EOF' \
+[base] \n\
+name=CentOS-7 - Base - vault.centos.org (AltArch) \n\
+baseurl=http://vault.centos.org/altarch/7.9.2009/os/aarch64/ \n\
+gpgcheck=1 \n\
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7-aarch64 \n\
+ \n\
+[updates] \n\
+name=CentOS-7 - Updates - vault.centos.org (AltArch) \n\
+baseurl=http://vault.centos.org/altarch/7.9.2009/updates/aarch64/ \n\
+gpgcheck=1 \n\
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7-aarch64 \n\
+ \n\
+[extras] \n\
+name=CentOS-7 - Extras - vault.centos.org (AltArch) \n\
+baseurl=http://vault.centos.org/altarch/7.9.2009/extras/aarch64/ \n\
+gpgcheck=1 \n\
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7-aarch64 \n\
+EOF
 
+# 配置 EPEL ARM64归档源
+RUN yum install -y -q wget && \
+    wget -O /tmp/epel-release.rpm https://archives.fedoraproject.org/pub/archive/epel/7/aarch64/Packages/e/epel-release-7-11.noarch.rpm && \
+    rpm -ivh /tmp/epel-release.rpm && \
+    sed -i 's/^mirrorlist/#mirrorlist/' /etc/yum.repos.d/epel*.repo && \
+    sed -i 's|^#baseurl=|baseurl=|' /etc/yum.repos.d/epel*.repo && \
+    sed -i 's|download.fedoraproject.org/pub/epel|archives.fedoraproject.org/pub/archive/epel|' /etc/yum.repos.d/epel*.repo && \
+    yum clean all && yum makecache -q
+
+# 1. 安装编译GCC 11的依赖
+RUN yum install -y -q \
+    gmp-devel mpfr-devel libmpc-devel \
+    gcc-c++ make ncurses-devel
+
+# 2. 源码编译安装GCC 11.5.0（ARM64唯一选择）
+WORKDIR /usr/local/src
+RUN wget -q https://ftp.gnu.org/gnu/gcc/gcc-11.5.0/gcc-11.5.0.tar.gz && \
+    tar -xf gcc-11.5.0.tar.gz && \
+    cd gcc-11.5.0 && \
+    ./contrib/download_prerequisites && \
+    mkdir build && cd build && \
+    ../configure --prefix=/opt/gcc-11 \
+      --enable-languages=c,c++ --disable-multilib --disable-werror && \
+    make -j${MAKE_JOBS} && \
+    make install && \
+    cd /usr/local/src && \
+    rm -rf gcc-11.5.0 gcc-11.5.0.tar.gz
+
+# 设置GCC 11环境
+ENV PATH="/opt/gcc-11/bin:${PATH}"
+ENV LD_LIBRARY_PATH="/opt/gcc-11/lib64:${LD_LIBRARY_PATH}"
+
+# 3. 安装LibreOffice编译依赖（ARM64包）
+RUN yum install -y -q \
+    git python3 curl unzip tar autoconf automake libtool pkgconfig \
+    flex bison gperf fontconfig-devel libX11-devel libXext-devel \
+    libXrender-devel libXinerama-devel libXrandr-devel libXt-devel \
+    libXcursor-devel libXcomposite-devel libXdamage-devel libxcb-devel \
+    mesa-libGL-devel mesa-libEGL-devel libdrm-devel gtk3-devel \
+    boost-devel openssl-devel nss-devel libxml2-devel cups-devel \
+    rpm-build clang llvm-devel vim perl-Archive-Zip perl-Digest-MD5
+
+# 4. 下载并准备LibreOffice源码
+WORKDIR /root/lobuild
+RUN wget -q https://download.documentfoundation.org/libreoffice/src/25.8.4/libreoffice-${LO_VERSION}.tar.xz && \
+    tar -xf libreoffice-${LO_VERSION}.tar.xz && \
+    cd libreoffice-${LO_VERSION} && \
+    ./download.sh
+
+# 5. 配置LibreOffice编译参数（ARM64专用）
+WORKDIR /root/lobuild/libreoffice-${LO_VERSION}
+RUN cat > autogen.input <<EOF \
+--enable-epm \n\
+--enable-split-app-modules \n\
+--enable-python=system \n\
+--disable-dependency-tracking \n\
+--with-vendor="CentOS7-ARM64" \n\
+--with-package-format=rpm \n\
+--with-parallelism=${MAKE_JOBS} \n\
+--disable-ooenv \n\
+--disable-postgresql-sdbc \n\
+--without-java \n\
+--host=aarch64-redhat-linux-gnu \n\
+--build=aarch64-redhat-linux-gnu \n\
+EOF
+
+RUN ./autogen.sh
+
+# 6. 编译并打包LibreOffice（最耗时步骤）
+# 使用nohup后台执行，日志保存到 compile.log
+RUN nohup bash -c "make -j${MAKE_JOBS} && make distro-pack-install" > /root/compile.log 2>&1
+
+# 等待编译完成（通过检查RPM文件存在）
+RUN tail -f /root/compile.log | while read line; do \
+    echo "$line"; \
+    if ls /root/lobuild/libreoffice-${LO_VERSION}/workdir/installation/*.rpm >/dev/null 2>&1; then \
+        pkill tail; \
+        break; \
+    fi; \
+    done
+
+# 7. 验证RPM生成
+RUN ls -lh /root/lobuild/libreoffice-${LO_VERSION}/workdir/installation/*.rpm
+
+# 8. 创建RPM提取脚本
+RUN echo '#!/bin/bash\n\
+cd /root/lobuild/libreoffice-'"${LO_VERSION}"'/workdir/installation/\n\
+echo "Generated RPMs:"\n\
+ls -lh *.rpm\n\
+echo -e "\\nTo copy RPMs out of container:"\n\
+echo "docker cp <container_id>:/root/lobuild/libreoffice-'"${LO_VERSION}"'/workdir/installation/*.rpm ./"' > /extract-rpms.sh && \
+    chmod +x /extract-rpms.sh
+
+# 设置工作目录
+WORKDIR /root/lobuild/libreoffice-${LO_VERSION}
+
+# 默认命令：显示编译结果和使用说明
+CMD echo "=== LibreOffice ${LO_VERSION} ARM64 Build Complete ===" && \
+    echo && \
+    echo "RPM location:" && \
+    ls -lh /root/lobuild/libreoffice-${LO_VERSION}/workdir/installation/*.rpm && \
+    echo && \
+    echo "To extract RPMs from container:" && \
+    echo "docker cp \$(docker ps -lq):/root/lobuild/libreoffice-${LO_VERSION}/workdir/installation/*.rpm ./" && \
+    bash
 
 
 #FROM jenkins/jenkins:lts-slim-jdk17
