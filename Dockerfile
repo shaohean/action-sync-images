@@ -115,23 +115,4 @@
 
 
 FROM centos:7.9.2009
-RUN rm -f /etc/yum.repos.d/CentOS-Base.repo && \
-    tee /etc/yum.repos.d/CentOS-Base.repo << 'EOF' \
-[base] \
-name=CentOS-7 - Base - vault.centos.org \
-baseurl=http://vault.centos.org/7.9.2009/os/$basearch/ \
-gpgcheck=1 \
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 \
-\
-[updates] \
-name=CentOS-7 - Updates - vault.centos.org \
-baseurl=http://vault.centos.org/7.9.2009/updates/$basearch/ \
-gpgcheck=1 \
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 \
-\
-[extras] \
-name=CentOS-7 - Extras - vault.centos.org \
-baseurl=http://vault.centos.org/7.9.2009/extras/$basearch/ \
-gpgcheck=1 \
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 \
-EOF
+RUN rm -f /etc/yum.repos.d/CentOS-Base.repo && echo "[base] \nname=CentOS-7 - Base - vault.centos.org \nbaseurl=http://vault.centos.org/7.9.2009/os/\$basearch/ \ngpgcheck=1 \ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 \n\n[updates] \nname=CentOS-7 - Updates - vault.centos.org \nbaseurl=http://vault.centos.org/7.9.2009/updates/\$basearch/ \ngpgcheck=1 \ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 \n\n[extras] \nname=CentOS-7 - Extras - vault.centos.org \nbaseurl=http://vault.centos.org/7.9.2009/extras/\$basearch/ \ngpgcheck=1 \ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7" > /etc/yum.repos.d/CentOS-Base.repo
