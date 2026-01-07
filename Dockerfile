@@ -1,38 +1,18 @@
-# ARM64 (aarch64) 单阶段 Dockerfile - 在 CentOS 7 容器内完整编译 LibreOffice 25.8.4.2
+# ARM64 (aarch64) 单阶段 Dockerfile - 使用 echo -e 方式写入配置
 # 构建时间: 8核约6-8小时，4核约12-15小时
-# 最终镜像包含: GCC 11编译器、完整源码、生成的RPM包
 
 FROM centos:7
 
-# 构建参数
 ARG MAKE_JOBS=4
 ARG LO_VERSION=25.8.4.2
 
-# 0. 配置 ARM64 Vault源（CentOS 7已停更）- 修复版
+# 0. 配置 ARM64 Vault源
 RUN rm -f /etc/yum.repos.d/CentOS-*.repo && \
-    cat > /etc/yum.repos.d/CentOS-AltArch.repo <<'EOF'
-[base]
-name=CentOS-7 - Base - vault.centos.org (AltArch)
-baseurl=http://vault.centos.org/altarch/7.9.2009/os/aarch64/
-gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7-aarch64
+    echo -e "[base]\nname=CentOS-7 - Base - vault.centos.org (AltArch)\nbaseurl=http://vault.centos.org/altarch/7.9.2009/os/aarch64/\ngpgcheck=1\ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7-aarch64\n\n[updates]\nname=CentOS-7 - Updates - vault.centos.org (AltArch)\nbaseurl=http://vault.centos.org/altarch/7.9.2009/updates/aarch64/\ngpgcheck=1\ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7-aarch64\n\n[extras]\nname=CentOS-7 - Extras - vault.centos.org (AltArch)\nbaseurl=http://vault.centos.org/altarch/7.9.2009/extras/aarch64/\ngpgcheck=1\ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7-aarch64" > /etc/yum.repos.d/CentOS-AltArch.repo
 
-[updates]
-name=CentOS-7 - Updates - vault.centos.org (AltArch)
-baseurl=http://vault.centos.org/altarch/7.9.2009/updates/aarch64/
-gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7-aarch64
-
-[extras]
-name=CentOS-7 - Extras - vault.centos.org (AltArch)
-baseurl=http://vault.centos.org/altarch/7.9.2009/extras/aarch64/
-gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7-aarch64
-EOF
-
-# 配置 EPEL ARM64归档源（使用cat替代tee避免冲突）
+# 配置 EPEL ARM64归档源
 RUN yum install -y -q wget && \
-    wget -O /tmp/epel-release.rpm https://archives.fedoraproject.org/pub/archive/epel/7/aarch64/Packages/e/epel-release-7-11.noarch.rpm && \
+    wget -q -O /tmp/epel-release.rpm https://archives.fedoraproject.org/pub/archive/epel/7/aarch64/Packages/e/epel-release-7-11.noarch.rpm && \
     rpm -ivh /tmp/epel-release.rpm && \
     sed -i 's/^mirrorlist/#mirrorlist/' /etc/yum.repos.d/epel*.repo && \
     sed -i 's|^#baseurl=|baseurl=|' /etc/yum.repos.d/epel*.repo && \
@@ -40,30 +20,25 @@ RUN yum install -y -q wget && \
     yum clean all && yum makecache -q && \
     rm -f /tmp/epel-release.rpm
 
-# 1. 安装编译 GCC 11 的依赖
-RUN yum install -y -q \
-    gmp-devel mpfr-devel libmpc-devel \
-    gcc-c++ make ncurses-devel
+# 1. 安装GCC编译依赖
+RUN yum install -y -q gmp-devel mpfr-devel libmpc-devel gcc-c++ make ncurses-devel
 
-# 2. 源码编译安装 GCC 11.5.0（ARM64 唯一选择）
+# 2. 源码编译GCC 11.5.0
 WORKDIR /usr/local/src
 RUN wget -q https://ftp.gnu.org/gnu/gcc/gcc-11.5.0/gcc-11.5.0.tar.gz && \
     tar -xf gcc-11.5.0.tar.gz && \
     cd gcc-11.5.0 && \
     ./contrib/download_prerequisites && \
     mkdir build && cd build && \
-    ../configure --prefix=/opt/gcc-11 \
-      --enable-languages=c,c++ --disable-multilib --disable-werror && \
+    ../configure --prefix=/opt/gcc-11 --enable-languages=c,c++ --disable-multilib --disable-werror && \
     make -j${MAKE_JOBS} && \
     make install && \
-    cd /usr/local/src && \
-    rm -rf gcc-11.5.0 gcc-11.5.0.tar.gz
+    cd /usr/local/src && rm -rf gcc-11.5.0*
 
-# 设置 GCC 11 环境
 ENV PATH="/opt/gcc-11/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/opt/gcc-11/lib64:${LD_LIBRARY_PATH}"
 
-# 3. 安装 LibreOffice 编译依赖（ARM64 包）
+# 3. 安装LibreOffice依赖
 RUN yum install -y -q \
     git python3 curl unzip tar autoconf automake libtool pkgconfig \
     flex bison gperf fontconfig-devel libX11-devel libXext-devel \
@@ -73,57 +48,36 @@ RUN yum install -y -q \
     boost-devel openssl-devel nss-devel libxml2-devel cups-devel \
     rpm-build clang llvm-devel vim perl-Archive-Zip perl-Digest-MD5
 
-# 4. 下载并准备 LibreOffice 源码
+# 4. 准备LibreOffice源码
 WORKDIR /root/lobuild
 RUN wget -q https://download.documentfoundation.org/libreoffice/src/25.8.4/libreoffice-${LO_VERSION}.tar.xz && \
     tar -xf libreoffice-${LO_VERSION}.tar.xz && \
-    cd libreoffice-${LO_VERSION} && \
-    ./download.sh
+    cd libreoffice-${LO_VERSION} && ./download.sh
 
-# 5. 配置 LibreOffice 编译参数（ARM64专用）
+# 5. 配置编译参数
 WORKDIR /root/lobuild/libreoffice-${LO_VERSION}
-RUN cat > autogen.input <<EOF
---enable-epm
---enable-split-app-modules
---enable-python=system
---disable-dependency-tracking
---with-vendor="CentOS7-ARM64"
---with-package-format=rpm
---with-parallelism=${MAKE_JOBS}
---disable-ooenv
---disable-postgresql-sdbc
---without-java
---host=aarch64-redhat-linux-gnu
---build=aarch64-redhat-linux-gnu
-EOF
+RUN echo -e "--enable-epm\\n--enable-split-app-modules\\n--enable-python=system\\n--disable-dependency-tracking\\n--with-vendor=CentOS7-ARM64\\n--with-package-format=rpm\\n--with-parallelism=${MAKE_JOBS}\\n--disable-ooenv\\n--disable-postgresql-sdbc\\n--without-java\\n--host=aarch64-redhat-linux-gnu\\n--build=aarch64-redhat-linux-gnu" > autogen.input
 
 RUN ./autogen.sh
 
-# 6. 编译并打包LibreOffice（最耗时步骤）
-# 修复: 直接执行make，失败时抛出错误
+# 6. 编译打包
 RUN make -j${MAKE_JOBS} && make distro-pack-install
 
-# 7. 验证RPM生成并创建提取脚本
-RUN ls -lh /root/lobuild/libreoffice-${LO_VERSION}/workdir/installation/*.rpm && \
-    echo '#!/bin/bash' > /extract-rpms.sh && \
-    echo "cd /root/lobuild/libreoffice-${LO_VERSION}/workdir/installation/" >> /extract-rpms.sh && \
-    echo 'echo "Generated RPMs:"' >> /extract-rpms.sh && \
-    echo 'ls -lh *.rpm' >> /extract-rpms.sh && \
-    echo 'echo -e "\nTo copy RPMs out of container:"' >> /extract-rpms.sh && \
-    echo 'echo "docker cp <container_id>:/root/lobuild/libreoffice-'${LO_VERSION}'/workdir/installation/*.rpm ./"' >> /extract-rpms.sh && \
+# 7. 创建提取脚本
+RUN echo -e '#!/bin/bash\ncd /root/lobuild/libreoffice-'"${LO_VERSION}"'/workdir/installation/\necho "Generated RPMs:"\nls -lh *.rpm\necho -e "\\nTo copy RPMs out:"\necho "docker cp <container_id>:/root/lobuild/libreoffice-'"${LO_VERSION}"'/workdir/installation/*.rpm ./"' > /extract-rpms.sh && \
     chmod +x /extract-rpms.sh
 
-# 设置工作目录
 WORKDIR /root/lobuild/libreoffice-${LO_VERSION}
 
-# 默认命令：显示编译结果和使用说明
-CMD echo "=== LibreOffice ${LO_VERSION} ARM64 Build Complete ===" && \
-    echo && \
-    echo "RPM location: /root/lobuild/libreoffice-${LO_VERSION}/workdir/installation/" && \
+CMD echo "=== Build Complete ===" && \
+    echo "RPMs:" && \
     ls -lh /root/lobuild/libreoffice-${LO_VERSION}/workdir/installation/*.rpm && \
-    echo && \
-    echo "Usage: docker cp <container_id>:/root/lobuild/libreoffice-'${LO_VERSION}'/workdir/installation/*.rpm ./" && \
-bash
+    echo -e "\nExtract with:" && \
+    echo "docker cp <container_id>:/root/lobuild/libreoffice-${LO_VERSION}/workdir/installation/*.rpm ./" && \
+    bash
+
+
+    
 
     
 
