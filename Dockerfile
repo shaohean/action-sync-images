@@ -18,7 +18,7 @@ name=CentOS-7 - Extras - vault.centos.org \
 baseurl=http://vault.centos.org/7.9.2009/extras/$basearch/ \
 gpgcheck=1 \
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 \
-EOF \
+EOF 
  
 
 
