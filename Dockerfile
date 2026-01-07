@@ -2,49 +2,50 @@
 # 构建时间: 8核约6-8小时，4核约12-15小时
 # 最终镜像包含: GCC 11编译器、完整源码、生成的RPM包
 
-FROM centos:7.9.2009
+FROM centos:7
 
 # 构建参数
 ARG MAKE_JOBS=4
 ARG LO_VERSION=25.8.4.2
 
-# 0. 配置 ARM64 Vault源（CentOS 7已停更）
+# 0. 配置 ARM64 Vault源（CentOS 7已停更）- 修复版
 RUN rm -f /etc/yum.repos.d/CentOS-*.repo && \
-    tee /etc/yum.repos.d/CentOS-AltArch.repo <<'EOF' \
-[base] \n\
-name=CentOS-7 - Base - vault.centos.org (AltArch) \n\
-baseurl=http://vault.centos.org/altarch/7.9.2009/os/aarch64/ \n\
-gpgcheck=1 \n\
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7-aarch64 \n\
- \n\
-[updates] \n\
-name=CentOS-7 - Updates - vault.centos.org (AltArch) \n\
-baseurl=http://vault.centos.org/altarch/7.9.2009/updates/aarch64/ \n\
-gpgcheck=1 \n\
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7-aarch64 \n\
- \n\
-[extras] \n\
-name=CentOS-7 - Extras - vault.centos.org (AltArch) \n\
-baseurl=http://vault.centos.org/altarch/7.9.2009/extras/aarch64/ \n\
-gpgcheck=1 \n\
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7-aarch64 \n\
+    cat > /etc/yum.repos.d/CentOS-AltArch.repo <<'EOF'
+[base]
+name=CentOS-7 - Base - vault.centos.org (AltArch)
+baseurl=http://vault.centos.org/altarch/7.9.2009/os/aarch64/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7-aarch64
+
+[updates]
+name=CentOS-7 - Updates - vault.centos.org (AltArch)
+baseurl=http://vault.centos.org/altarch/7.9.2009/updates/aarch64/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7-aarch64
+
+[extras]
+name=CentOS-7 - Extras - vault.centos.org (AltArch)
+baseurl=http://vault.centos.org/altarch/7.9.2009/extras/aarch64/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7-aarch64
 EOF
 
-# 配置 EPEL ARM64归档源
+# 配置 EPEL ARM64归档源（使用cat替代tee避免冲突）
 RUN yum install -y -q wget && \
     wget -O /tmp/epel-release.rpm https://archives.fedoraproject.org/pub/archive/epel/7/aarch64/Packages/e/epel-release-7-11.noarch.rpm && \
     rpm -ivh /tmp/epel-release.rpm && \
     sed -i 's/^mirrorlist/#mirrorlist/' /etc/yum.repos.d/epel*.repo && \
     sed -i 's|^#baseurl=|baseurl=|' /etc/yum.repos.d/epel*.repo && \
     sed -i 's|download.fedoraproject.org/pub/epel|archives.fedoraproject.org/pub/archive/epel|' /etc/yum.repos.d/epel*.repo && \
-    yum clean all && yum makecache -q
+    yum clean all && yum makecache -q && \
+    rm -f /tmp/epel-release.rpm
 
-# 1. 安装编译GCC 11的依赖
+# 1. 安装编译 GCC 11 的依赖
 RUN yum install -y -q \
     gmp-devel mpfr-devel libmpc-devel \
     gcc-c++ make ncurses-devel
 
-# 2. 源码编译安装GCC 11.5.0（ARM64唯一选择）
+# 2. 源码编译安装 GCC 11.5.0（ARM64 唯一选择）
 WORKDIR /usr/local/src
 RUN wget -q https://ftp.gnu.org/gnu/gcc/gcc-11.5.0/gcc-11.5.0.tar.gz && \
     tar -xf gcc-11.5.0.tar.gz && \
@@ -58,11 +59,11 @@ RUN wget -q https://ftp.gnu.org/gnu/gcc/gcc-11.5.0/gcc-11.5.0.tar.gz && \
     cd /usr/local/src && \
     rm -rf gcc-11.5.0 gcc-11.5.0.tar.gz
 
-# 设置GCC 11环境
+# 设置 GCC 11 环境
 ENV PATH="/opt/gcc-11/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/opt/gcc-11/lib64:${LD_LIBRARY_PATH}"
 
-# 3. 安装LibreOffice编译依赖（ARM64包）
+# 3. 安装 LibreOffice 编译依赖（ARM64 包）
 RUN yum install -y -q \
     git python3 curl unzip tar autoconf automake libtool pkgconfig \
     flex bison gperf fontconfig-devel libX11-devel libXext-devel \
@@ -72,55 +73,44 @@ RUN yum install -y -q \
     boost-devel openssl-devel nss-devel libxml2-devel cups-devel \
     rpm-build clang llvm-devel vim perl-Archive-Zip perl-Digest-MD5
 
-# 4. 下载并准备LibreOffice源码
+# 4. 下载并准备 LibreOffice 源码
 WORKDIR /root/lobuild
 RUN wget -q https://download.documentfoundation.org/libreoffice/src/25.8.4/libreoffice-${LO_VERSION}.tar.xz && \
     tar -xf libreoffice-${LO_VERSION}.tar.xz && \
     cd libreoffice-${LO_VERSION} && \
     ./download.sh
 
-# 5. 配置LibreOffice编译参数（ARM64专用）
+# 5. 配置 LibreOffice 编译参数（ARM64专用）
 WORKDIR /root/lobuild/libreoffice-${LO_VERSION}
-RUN cat > autogen.input <<EOF \
---enable-epm \n\
---enable-split-app-modules \n\
---enable-python=system \n\
---disable-dependency-tracking \n\
---with-vendor="CentOS7-ARM64" \n\
---with-package-format=rpm \n\
---with-parallelism=${MAKE_JOBS} \n\
---disable-ooenv \n\
---disable-postgresql-sdbc \n\
---without-java \n\
---host=aarch64-redhat-linux-gnu \n\
---build=aarch64-redhat-linux-gnu \n\
+RUN cat > autogen.input <<EOF
+--enable-epm
+--enable-split-app-modules
+--enable-python=system
+--disable-dependency-tracking
+--with-vendor="CentOS7-ARM64"
+--with-package-format=rpm
+--with-parallelism=${MAKE_JOBS}
+--disable-ooenv
+--disable-postgresql-sdbc
+--without-java
+--host=aarch64-redhat-linux-gnu
+--build=aarch64-redhat-linux-gnu
 EOF
 
 RUN ./autogen.sh
 
 # 6. 编译并打包LibreOffice（最耗时步骤）
-# 使用nohup后台执行，日志保存到 compile.log
-RUN nohup bash -c "make -j${MAKE_JOBS} && make distro-pack-install" > /root/compile.log 2>&1
+# 修复: 直接执行make，失败时抛出错误
+RUN make -j${MAKE_JOBS} && make distro-pack-install
 
-# 等待编译完成（通过检查RPM文件存在）
-RUN tail -f /root/compile.log | while read line; do \
-    echo "$line"; \
-    if ls /root/lobuild/libreoffice-${LO_VERSION}/workdir/installation/*.rpm >/dev/null 2>&1; then \
-        pkill tail; \
-        break; \
-    fi; \
-    done
-
-# 7. 验证RPM生成
-RUN ls -lh /root/lobuild/libreoffice-${LO_VERSION}/workdir/installation/*.rpm
-
-# 8. 创建RPM提取脚本
-RUN echo '#!/bin/bash\n\
-cd /root/lobuild/libreoffice-'"${LO_VERSION}"'/workdir/installation/\n\
-echo "Generated RPMs:"\n\
-ls -lh *.rpm\n\
-echo -e "\\nTo copy RPMs out of container:"\n\
-echo "docker cp <container_id>:/root/lobuild/libreoffice-'"${LO_VERSION}"'/workdir/installation/*.rpm ./"' > /extract-rpms.sh && \
+# 7. 验证RPM生成并创建提取脚本
+RUN ls -lh /root/lobuild/libreoffice-${LO_VERSION}/workdir/installation/*.rpm && \
+    echo '#!/bin/bash' > /extract-rpms.sh && \
+    echo "cd /root/lobuild/libreoffice-${LO_VERSION}/workdir/installation/" >> /extract-rpms.sh && \
+    echo 'echo "Generated RPMs:"' >> /extract-rpms.sh && \
+    echo 'ls -lh *.rpm' >> /extract-rpms.sh && \
+    echo 'echo -e "\nTo copy RPMs out of container:"' >> /extract-rpms.sh && \
+    echo 'echo "docker cp <container_id>:/root/lobuild/libreoffice-'${LO_VERSION}'/workdir/installation/*.rpm ./"' >> /extract-rpms.sh && \
     chmod +x /extract-rpms.sh
 
 # 设置工作目录
@@ -129,13 +119,13 @@ WORKDIR /root/lobuild/libreoffice-${LO_VERSION}
 # 默认命令：显示编译结果和使用说明
 CMD echo "=== LibreOffice ${LO_VERSION} ARM64 Build Complete ===" && \
     echo && \
-    echo "RPM location:" && \
+    echo "RPM location: /root/lobuild/libreoffice-${LO_VERSION}/workdir/installation/" && \
     ls -lh /root/lobuild/libreoffice-${LO_VERSION}/workdir/installation/*.rpm && \
     echo && \
-    echo "To extract RPMs from container:" && \
-    echo "docker cp \$(docker ps -lq):/root/lobuild/libreoffice-${LO_VERSION}/workdir/installation/*.rpm ./" && \
-    bash
+    echo "Usage: docker cp <container_id>:/root/lobuild/libreoffice-'${LO_VERSION}'/workdir/installation/*.rpm ./" && \
+bash
 
+    
 
 #FROM jenkins/jenkins:lts-slim-jdk17
 #RUN jenkins-plugin-cli --plugins ssh-slaves blueocean kubernetes ace-editor ant antisamy-markup-formatter apache-httpcomponents-client-4-api apache-httpcomponents-client-5-api artifactory authentication-tokens bootstrap5-api bouncycastle-api branch-api build-timeout caffeine-api checks-api cloudbees-folder command-launcher commons-lang3-api commons-text-api config-file-provider credentials credentials-binding data-tables-api dependency-check-jenkins-plugin display-url-api docker-build-step docker-commons docker-java-api docker-workflow durable-task echarts-api email-ext external-monitor-job font-awesome-api git git-client git-server golang gradle handlebars htmlpublisher instance-identity ionicons-api ivy jackson2-api jakarta-activation-api jakarta-mail-api javadoc javax-activation-api javax-mail-api jaxb jdk-tool jquery3-api jquery-detached jsch junit kpp-management-plugin kubernetes kubernetes-client-api kubernetes-credentials ldap localization-support localization-zh-cn lockable-resources mailer mapdb-api mask-passwords matrix-auth matrix-project maven-plugin metrics mina-sshd-api-common mina-sshd-api-core momentjs okhttp-api pam-auth pipeline-build-step pipeline-graph-analysis  pipeline-input-step pipeline-github-lib pipeline-milestone-step pipeline-model-api pipeline-model-declarative-agent pipeline-model-definition pipeline-model-extensions pipeline-rest-api pipeline-stage-step pipeline-stage-tags-metadata pipeline-stage-view plain-credentials plugin-util-api publish-over publish-over-ftp publish-over-ssh quality-gates resource-disposer scm-api script-security snakeyaml-api sonar sonar-quality-gates ssh-agent ssh-credentials sshd structs subversion svncompat14 token-macro trilead-api variant workflow-aggregator workflow-api workflow-basic-steps workflow-cps workflow-cps-global-lib workflow-durable-task-step workflow-job workflow-multibranch workflow-scm-step workflow-step-api workflow-support ws-cleanup xcode-plugin theme-manager dark-theme
