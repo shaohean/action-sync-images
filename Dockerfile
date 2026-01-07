@@ -2,13 +2,14 @@
 # 修复 bzip2 缺失、LD_LIBRARY_PATH 警告和 CMD 格式问题
 # 构建时间: 8核约6-8小时，4核约12-15小时
 
+
 FROM centos:7
 
 ARG MAKE_JOBS=4
 ARG LO_VERSION=25.8.4.2
 
 # 0. 首先安装基础工具（解决 bzip2 缺失问题）
-RUN yum install -y -q wget bzip2 tar gzip && \
+RUN  curl -o /etc/yum.repos.d/CentOS-Base.repo  http://mirrors.aliyun.com/repo/Centos-altarch-7.repo && yum install -y -q wget bzip2 tar gzip && \
     yum clean all
 
 # 1. 配置 ARM64 Vault 源
