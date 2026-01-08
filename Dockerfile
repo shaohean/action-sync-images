@@ -26,15 +26,19 @@ RUN yum install -y -q gmp-devel mpfr-devel libmpc-devel gcc-c++ make ncurses-dev
 
 # 4. 源码编译安装 GCC 11.5.0
 WORKDIR /usr/local/src
-RUN wget -q https://ftp.gnu.org/gnu/gcc/gcc-11.5.0/gcc-11.5.0.tar.gz && \
-    tar -xf gcc-11.5.0.tar.gz && \
-    cd gcc-11.5.0 && \
+RUN wget -q https://ftp.gnu.org/gnu/gcc/gcc-12.3.0/gcc-12.3.0.tar.gz && \
+    tar -xf gcc-12.3.0.tar.gz && \
+    cd gcc-12.3.0 && \
     ./contrib/download_prerequisites && \
     mkdir build && cd build && \
-    ../configure --prefix=/opt/gcc-11 --enable-languages=c,c++ --disable-multilib --disable-werror && \
+    ../configure --prefix=/opt/gcc-12 \
+      --enable-languages=c,c++ --disable-multilib --disable-werror && \
     make -j${MAKE_JOBS} && \
     make install && \
-    cd /usr/local/src && rm -rf gcc-11.5.0 gcc-11.5.0.tar.gz
+    cd /usr/local/src && rm -rf gcc-12.3.0 gcc-12.3.0.tar.gz
+
+ENV PATH=/opt/gcc-12/bin:${PATH}
+ENV LD_LIBRARY_PATH=/opt/gcc-12/lib64:${LD_LIBRARY_PATH}
 
 # 5. 设置环境变量（修复 UndefinedVar 警告）
 ENV PATH=/opt/gcc-11/bin:${PATH}
