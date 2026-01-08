@@ -8,7 +8,7 @@
 
 ####################  阶段 1：builder  ####################
 FROM centos:7
-RUN cd /mnt/ && curl -O  https://dev-www.libreoffice.org/src/libetonyek-0.1.13.tar.xz
+RUN cd /mnt/ && curl -O  https://download.savannah.gnu.org/releases/freetype/freetype-2.13.2.tar.gz
 
     
 
