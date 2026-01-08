@@ -1,85 +1,80 @@
-# ARM64 (aarch64) 单阶段 Dockerfile - CentOS 7 编译 LibreOffice 25.8.4.2
-# 修复 bzip2 缺失、LD_LIBRARY_PATH 警告和 CMD 格式问题
-# 构建时间: 8核约6-8小时，4核约12-15小时
+# *******************************************************************************
+#  ARM64 (aarch64) 多阶段 Dockerfile
+#  阶段 1：完整编译 LibreOffice 25.8.4.2
+#  阶段 2：仅保留 RPM 与提取脚本，体积 ≈ 200 MB
+#  构建：docker build --build-arg MAKE_JOBS=8 -t lo-centos7-arm64 .
+#  提取：docker run --rm -v $PWD/output:/output lo-centos7-arm64
+# *******************************************************************************
 
-
-FROM centos:7
+####################  阶段 1：builder  ####################
+FROM centos:7 AS builder
 
 ARG MAKE_JOBS=4
 ARG LO_VERSION=25.8.4.2
 
-# 0. 首先安装基础工具（解决 bzip2 缺失问题）
-RUN  curl -o /etc/yum.repos.d/CentOS-Base.repo  http://mirrors.aliyun.com/repo/Centos-altarch-7.repo && yum install -y -q wget bzip2 tar gzip && \
-    yum clean all
-
-# 1. 配置 ARM64 Vault 源
+# 0. 基础工具 & 源配置（同单阶段）
+RUN yum install -y -q bzip2 wget tar gzip gcc-c++ make && yum clean all
 RUN rm -f /etc/yum.repos.d/CentOS-*.repo && \
     echo -e "[base]\nname=CentOS-7 - Base - vault.centos.org (AltArch)\nbaseurl=http://vault.centos.org/altarch/7.9.2009/os/aarch64/\ngpgcheck=1\ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7-aarch64\n\n[updates]\nname=CentOS-7 - Updates - vault.centos.org (AltArch)\nbaseurl=http://vault.centos.org/altarch/7.9.2009/updates/aarch64/\ngpgcheck=1\ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7-aarch64\n\n[extras]\nname=CentOS-7 - Extras - vault.centos.org (AltArch)\nbaseurl=http://vault.centos.org/altarch/7.9.2009/extras/aarch64/\ngpgcheck=1\ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7-aarch64" > /etc/yum.repos.d/CentOS-AltArch.repo
-
-# 2. 配置 EPEL ARM64 归档源
 RUN rpm --import https://archives.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7 && \
-    echo -e "[epel]\nname=Extra Packages for Enterprise Linux 7 - aarch64\nbaseurl=https://archives.fedoraproject.org/pub/archive/epel/7/aarch64/\nenabled=1\ngpgcheck=1\ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7" > /etc/yum.repos.d/epel.repo && \
-    yum clean all && yum makecache -q
+    echo -e "[epel]\nname=Extra Packages for Enterprise Linux 7 - aarch64\nbaseurl=https://archives.fedoraproject.org/pub/archive/epel/7/aarch64/\nenabled=1\ngpgcheck=1\ngpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7" > /etc/yum.repos.d/epel.repo
 
-# 3. 安装 GCC 编译依赖（bzip2 已预装）
-RUN yum install -y -q gmp-devel mpfr-devel libmpc-devel gcc-c++ make ncurses-devel
+# 1. GCC 12 构建链（静态库必备）
+RUN yum install -y -q gmp-devel mpfr-devel libmpc-devel ncurses-devel glibc-static libstdc++-static
 
-# 4. 源码编译安装 GCC 11.5.0
+# 2. 源码编译 GCC 12.3.0
 WORKDIR /usr/local/src
 RUN wget -q https://ftp.gnu.org/gnu/gcc/gcc-12.3.0/gcc-12.3.0.tar.gz && \
-    tar -xf gcc-12.3.0.tar.gz && \
-    cd gcc-12.3.0 && \
+    tar -xf gcc-12.3.0.tar.gz && cd gcc-12.3.0 && \
     ./contrib/download_prerequisites && \
     mkdir build && cd build && \
-    ../configure --prefix=/opt/gcc-12 \
-      --enable-languages=c,c++ --disable-multilib --disable-werror && \
-    make -j${MAKE_JOBS} && \
-    make install && \
-    cd /usr/local/src && rm -rf gcc-12.3.0 gcc-12.3.0.tar.gz
+    ../configure --prefix=/opt/gcc-12 --enable-languages=c,c++ --disable-multilib --disable-werror && \
+    make -j${MAKE_JOBS} && make install && \
+    cd /usr/local/src && rm -rf gcc-12.3.0*
 
 ENV PATH=/opt/gcc-12/bin:${PATH}
 ENV LD_LIBRARY_PATH=/opt/gcc-12/lib64:${LD_LIBRARY_PATH}
 
-# 5. 设置环境变量（修复 UndefinedVar 警告）
-ENV PATH=/opt/gcc-11/bin:${PATH}
-ENV LD_LIBRARY_PATH=/opt/gcc-11/lib64:${LD_LIBRARY_PATH}
+# 3. 静态编译 flex 2.6.4
+RUN cd /tmp && wget -q https://github.com/westes/flex/releases/download/v2.6.4/flex-2.6.4.tar.gz && \
+    tar -xf flex-2.6.4.tar.gz && cd flex-2.6.4 && \
+    ./configure LDFLAGS="-static" --prefix=/usr/local && make -j${MAKE_JOBS} && make install && \
+    ln -sf /usr/local/bin/flex /usr/bin/flex && rm -rf /tmp/flex-2.6.4*
 
-# 6. 安装 LibreOffice 编译依赖（ARM64 包）
-RUN yum install -y -q \
-    git python3 curl unzip autoconf automake libtool pkgconfig \
-    flex bison gperf fontconfig-devel libX11-devel libXext-devel \
-    libXrender-devel libXinerama-devel libXrandr-devel libXt-devel \
-    libXcursor-devel libXcomposite-devel libXdamage-devel libxcb-devel \
-    mesa-libGL-devel mesa-libEGL-devel libdrm-devel gtk3-devel \
-    boost-devel openssl-devel nss-devel libxml2-devel cups-devel \
-    rpm-build clang llvm-devel vim perl-Archive-Zip perl-Digest-MD5
+# 4. 静态编译 gperf 3.1
+RUN cd /tmp && wget -q https://ftp.gnu.org/gnu/gperf/gperf-3.1.tar.gz && \
+    tar -xf gperf-3.1.tar.gz && cd gperf-3.1 && \
+    ./configure LDFLAGS="-static" --prefix=/usr/local && make -j${MAKE_JOBS} && make install && \
+    ln -sf /usr/local/bin/gperf /usr/bin/gperf && rm -rf /tmp/gperf-3.1*
 
-# 7. 下载并准备 LibreOffice 源码
+# 5. 补齐 LO 25.8 硬性依赖
+RUN yum install -y -q git python3 python3-devel bison fakeroot meson ninja \
+    fontconfig-devel libX11-devel libXext-devel libXrender-devel libXinerama-devel libXrandr-devel libXt-devel \
+    libXcursor-devel libXcomposite-devel libXdamage-devel libxcb-devel mesa-libGL-devel mesa-libEGL-devel libdrm-devel \
+    gtk3-devel boost-devel openssl-devel nss-devel libxml2-devel cups-devel rpm-build clang llvm-devel perl-Time-Piece \
+    gstreamer1-devel gstreamer1-plugins-base-devel gstreamer1-pbutils-devel gstreamer1-video-devel && yum clean all
+
+# 6. 下载 LibreOffice 源码与外部 tarballs
 WORKDIR /root/lobuild
 RUN wget -q https://download.documentfoundation.org/libreoffice/src/25.8.4/libreoffice-${LO_VERSION}.tar.xz && \
-    tar -xf libreoffice-${LO_VERSION}.tar.xz && \
-    cd libreoffice-${LO_VERSION} && ./download.sh
+    tar -xf libreoffice-${LO_VERSION}.tar.xz && cd libreoffice-${LO_VERSION} && ./download.sh
 
-# 8. 配置 LibreOffice 编译参数（ARM64 专用）
+# 7. 配置 & 编译 & 打包
 WORKDIR /root/lobuild/libreoffice-${LO_VERSION}
-RUN echo -e "--enable-epm\n--enable-split-app-modules\n--enable-python=system\n--disable-dependency-tracking\n--with-vendor=CentOS7-ARM64\n--with-package-format=rpm\n--with-parallelism=${MAKE_JOBS}\n--disable-ooenv\n--disable-postgresql-sdbc\n--without-java\n--host=aarch64-redhat-linux-gnu\n--build=aarch64-redhat-linux-gnu" > autogen.input
+RUN echo -e "--enable-epm\n--enable-split-app-modules\n--enable-python=system\n--disable-dependency-tracking\n--with-vendor=CentOS7-ARM64\n--with-package-format=rpm\n--with-parallelism=${MAKE_JOBS}\n--disable-ooenv\n--disable-postgresql-sdbc\n--without-java\n--host=aarch64-redhat-linux-gnu\n--build=aarch64-redhat-linux-gnu" > autogen.input && \
+    ./autogen.sh && make -j${MAKE_JOBS} && make distro-pack-install
 
-RUN ./autogen.sh
-
-# 9. 编译并打包 LibreOffice
-RUN make -j${MAKE_JOBS} && make distro-pack-install
-
-# 10. 验证并创建提取脚本
-RUN ls -lh /root/lobuild/libreoffice-${LO_VERSION}/workdir/installation/*.rpm && \
-    echo -e '#!/bin/bash\ncd /root/lobuild/libreoffice-'"${LO_VERSION}"'/workdir/installation/\necho "Generated RPMs:"\nls -lh *.rpm\necho -e "\\nTo copy RPMs out:"\necho "docker cp <container_id>:/root/lobuild/libreoffice-'"${LO_VERSION}"'/workdir/installation/*.rpm ./"' > /extract-rpms.sh && \
-    chmod +x /extract-rpms.sh
-
-WORKDIR /root/lobuild/libreoffice-${LO_VERSION}
-
-# 11. 最终命令（JSON 格式，修复警告）
-CMD ["bash", "-c", "echo '=== Build Complete ===' && echo && echo 'RPM location: /root/lobuild/libreoffice-'${LO_VERSION}'/workdir/installation/' && ls -lh /root/lobuild/libreoffice-${LO_VERSION}/workdir/installation/*.rpm && echo -e '\\nExtract with: docker cp <container_id>:/root/lobuild/libreoffice-'${LO_VERSION}'/workdir/installation/*.rpm ./' && bash"]
+# 8. 整理输出路径
+RUN mkdir -p /rpms && cp /root/lobuild/libreoffice-*/workdir/installation/*.rpm /rpms/
 
 
+####################  阶段 2：runtime  ####################
+FROM centos:7
+# 仅拷贝 RPM 与提取脚本，体积 ≈ 200 MB
+COPY --from=builder /rpms /rpms
+COPY --from=builder /root/lobuild/libreoffice-*/workdir/installation /rpms-full
+RUN echo -e '#!/bin/bash\necho "RPM list:"\nls -lh /rpms/*.rpm\necho -e "\\nCopy out:"\necho "docker cp <container_id>:/rpms/*.rpm ./"' > /extract-rpms.sh && chmod +x /extract-rpms.sh
+CMD ["bash", "-c", "/extract-rpms.sh"]
     
 
     
