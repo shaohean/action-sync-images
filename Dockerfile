@@ -8,7 +8,7 @@
 
 ####################  阶段 1：builder  ####################
 FROM centos:7
-RUN cd /mnt/ && curl -L -O -N -s --progress-bar https://download.documentfoundation.org/libreoffice/src/25.8.4/libreoffice-translations-25.8.4.2.tar.xz 2>&1 | tee -a /home/lo/libreoffice-25.8.4.2/external/tarballs/fetch.log && [ ${PIPESTATUS[0]} -eq 0 ] 
+RUN cd /mnt/ && curl -L -O -N -s --progress-bar https://download.documentfoundation.org/libreoffice/src/25.8.4/libreoffice-translations-25.8.4.2.tar.xz 2>&1
 
     
 
