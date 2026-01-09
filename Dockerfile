@@ -8,7 +8,7 @@
 
 ####################  阶段 1：builder  ####################
 FROM centos:7
-RUN cd /mnt/ && curl -O  https://download.savannah.gnu.org/releases/freetype/freetype-2.13.2.tar.gz
+RUN cd /mnt/ && curl -O  https://download.documentfoundation.org/libreoffice/src/25.8.4/libreoffice-translations-25.8.4.2.tar.xz
 
     
 
