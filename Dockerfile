@@ -7,8 +7,8 @@
 # *******************************************************************************
 
 ####################  阶段 1：builder  ####################
-FROM centos:7
-RUN cd /mnt/ && curl -L -O -N -s --progress-bar https://download.documentfoundation.org/libreoffice/src/25.8.4/libreoffice-translations-25.8.4.2.tar.xz 2>&1
+FROM rockylinux:9.3
+RUN dnf install -y setcap curl wget && curl -sO https://packages.wazuh.com/4.14/wazuh-install.sh && chmod 744 wazuh-install.sh && ./wazuh-install.sh -dw rpm -da x86_64 && curl -sO https://packages.wazuh.com/4.14/config.yml && sed -i '/ip:/s/".*/"10.169.23.50"/g' config.yml &&./wazuh-install.sh -g
 
     
 
