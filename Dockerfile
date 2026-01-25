@@ -8,7 +8,7 @@
 
 ####################  阶段 1：builder  ####################
 FROM rockylinux/rockylinux:9.7
-RUN dnf install -y setcap curl wget && curl -sO https://packages.wazuh.com/4.14/wazuh-install.sh && chmod 744 wazuh-install.sh && ./wazuh-install.sh -dw rpm -da x86_64 && curl -sO https://packages.wazuh.com/4.14/config.yml && sed -i '/ip:/s/".*/"10.169.23.50"/g' config.yml &&./wazuh-install.sh -g
+RUN dnf install -y curl wget && curl -sO https://packages.wazuh.com/4.14/wazuh-install.sh && chmod 744 wazuh-install.sh && ./wazuh-install.sh -dw rpm -da x86_64 && curl -sO https://packages.wazuh.com/4.14/config.yml && sed -i '/ip:/s/".*/"10.169.23.50"/g' config.yml &&./wazuh-install.sh -g
 
     
 
