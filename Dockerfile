@@ -7,9 +7,8 @@
 # *******************************************************************************
 
 ####################  阶段 1：builder  ####################
-FROM rockylinux/rockylinux:9.7
-RUN dnf install -y wget sudo && curl -sO https://packages.wazuh.com/4.14/wazuh-install.sh && chmod 744 wazuh-install.sh && ./wazuh-install.sh -dw rpm -da x86_64 && curl -sO https://packages.wazuh.com/4.14/config.yml && sed -i '/ip:/s/".*/"10.169.23.50"/g' config.yml &&./wazuh-install.sh -g
-
+FROM alpine
+RUN curl -O https://download.rockylinux.org/pub/rocky/10/isos/x86_64/Rocky-10.1-x86_64-dvd1.iso
     
 
 #FROM jenkins/jenkins:lts-slim-jdk17
