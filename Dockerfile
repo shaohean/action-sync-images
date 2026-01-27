@@ -8,7 +8,7 @@
 
 ####################  阶段 1：builder  ####################
 FROM alpine
-RUN apk add curl -y && curl -O https://download.rockylinux.org/pub/rocky/10/isos/x86_64/Rocky-10.1-x86_64-dvd1.iso
+RUN apk add curl && curl -O https://download.rockylinux.org/pub/rocky/10/isos/x86_64/Rocky-10.1-x86_64-dvd1.iso
     
 
 #FROM jenkins/jenkins:lts-slim-jdk17
