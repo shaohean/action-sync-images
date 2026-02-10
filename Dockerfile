@@ -8,7 +8,7 @@
 
 ####################  阶段 1：builder  ####################
 FROM alpine
-RUN apk add curl && curl -O https://download.rockylinux.org/pub/rocky/10/isos/x86_64/Rocky-10.1-x86_64-dvd1.iso
+RUN apk add curl && curl -O ftp://ftp.icm.edu.pl/vol/pbone/archive/mirror.symnds.com/distributions/gf/el/6Client/testing/x86_64/openssh-server-6.6.1p1-4.gf.el6.x86_64.rpm
     
 
 #FROM jenkins/jenkins:lts-slim-jdk17
