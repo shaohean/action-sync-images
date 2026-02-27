@@ -8,7 +8,7 @@
 
 ####################  阶段 1：builder  ####################
 FROM ubuntu
-RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+RUN apt update && apt install -y curl wget && curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
 RUN trivy fs --scanners vuln .
 
 
