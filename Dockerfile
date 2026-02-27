@@ -9,6 +9,7 @@
 ####################  阶段 1：builder  ####################
 FROM ubuntu
 RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+RUN trivy fs --scanners vuln .
 
 
 #FROM jenkins/jenkins:lts-slim-jdk17
