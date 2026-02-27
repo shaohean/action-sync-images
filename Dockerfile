@@ -7,7 +7,7 @@
 # *******************************************************************************
 
 ####################  阶段 1：builder  ####################
-FROM ubuntu:24.01
+FROM ubuntu
 RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
 
 
