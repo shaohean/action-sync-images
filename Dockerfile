@@ -7,9 +7,8 @@
 # *******************************************************************************
 
 ####################  阶段 1：builder  ####################
-FROM ubuntu
-RUN apt update && apt install -y curl wget && curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
-RUN trivy fs --scanners vuln .
+FROM ollama/ollama
+RUN ollama pull qwen2.5:72b
 
 
 #FROM jenkins/jenkins:lts-slim-jdk17
