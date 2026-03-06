@@ -6,7 +6,7 @@
 #  提取：docker run --rm -v $PWD/output:/output lo-centos7-arm64
 # *******************************************************************************
 
-FROM ubuntu:24.03
+FROM ubuntu:24
 RUN apt-get update && apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev git  -y && git clone https://github.com/ggml-org/llama.cpp
 RUN cmake llama.cpp -B llama.cpp/build -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=OFF
 RUN cmake --build llama.cpp/build --config Release -j --clean-first --target llama-cli llama-mtmd-cli llama-server llama-gguf-split
