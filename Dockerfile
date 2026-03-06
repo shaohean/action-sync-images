@@ -8,7 +8,8 @@
 
 ####################  阶段 1：builder  ####################
 FROM ollama/ollama
-RUN ollama serve && ollama pull qwen2.5:72b
+RUN ollama serve &
+RUN echo test && ollama pull qwen2.5:72b
 
 
 #FROM jenkins/jenkins:lts-slim-jdk17
