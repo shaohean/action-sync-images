@@ -11,7 +11,13 @@ RUN apt-get update && apt-get install pciutils build-essential cmake curl libcur
 RUN cmake llama.cpp -B llama.cpp/build -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=ON
 RUN cmake --build llama.cpp/build --config Release -j --clean-first --target llama-cli llama-mtmd-cli llama-server llama-gguf-split
 RUN cp llama.cpp/build/bin/llama-* llama.cpp
-
+RUN export LLAMA_CACHE="unsloth/Qwen3.5-27B-GGUF" && ./llama.cpp/llama-cli \
+    -hf unsloth/Qwen3.5-27B-GGUF:UD-Q4_K_XL \
+    --ctx-size 16384 \
+    --temp 0.6 \
+    --top-p 0.95 \
+    --top-k 20 \
+    --min-p 0.00
 
 
 ####################  阶段 1：builder  ####################
