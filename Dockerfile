@@ -7,11 +7,11 @@
 # *******************************************************************************
 
 FROM ubuntu:24.04
-RUN apt-get update && apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev git openssl  libssl-dev python3-pip -y &&  pip install huggingface-hub  --break-system-packages && git clone https://github.com/ggml-org/llama.cpp
+RUN apt-get update && apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev git openssl  libssl-dev python3-pip -y  && git clone https://github.com/ggml-org/llama.cpp
 RUN cmake llama.cpp -B llama.cpp/build -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=OFF -DLLAMA_OPENSSL=ON
 RUN cmake --build llama.cpp/build --config Release -j --clean-first --target llama-cli llama-mtmd-cli llama-server llama-gguf-split
 RUN cp llama.cpp/build/bin/llama-* llama.cpp && cp -a llama.cpp/build/bin/llama-* /usr/local/bin/
-RUN export LLAMA_CACHE="unsloth/Qwen3.5-27B-GGUF" && huggingface-cli download unsloth/Qwen3.5-27B-GGUF Qwen3.5-27B-UD-Q4_K_XL.gguf --local-dir /models --local-dir-use-symlinks False
+RUN export LLAMA_CACHE="unsloth/Qwen3.5-27B-GGUF" && mkdir -p /models && curl -L -o /models/Qwen3.5-27B-UD-Q4_K_XL.gguf "https://huggingface.co/unsloth/Qwen3.5-27B-GGUF/resolve/main/Qwen3.5-27B-UD-Q4_K_XL.gguf"
 ENTRYPOINT ["llama-cli"]
 CMD ["-m", "/models/Qwen3.5-27B-UD-Q4_K_XL.gguf", "--ctx-size", "131072"]
 
