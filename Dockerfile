@@ -7,7 +7,7 @@
 # *******************************************************************************
 
 FROM ubuntu:24.04
-RUN apt-get update && apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev git openssl  libssl-dev python3-pip -y &&  pip install huggingface-hub && git clone https://github.com/ggml-org/llama.cpp
+RUN apt-get update && apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev git openssl  libssl-dev python3-pip -y &&  pip install huggingface-hub  --break-system-packages && git clone https://github.com/ggml-org/llama.cpp
 RUN cmake llama.cpp -B llama.cpp/build -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=OFF -DLLAMA_OPENSSL=ON
 RUN cmake --build llama.cpp/build --config Release -j --clean-first --target llama-cli llama-mtmd-cli llama-server llama-gguf-split
 RUN cp llama.cpp/build/bin/llama-* llama.cpp && cp -a llama.cpp/build/bin/llama-* /usr/local/bin/
