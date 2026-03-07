@@ -7,17 +7,11 @@
 # *******************************************************************************
 
 FROM ubuntu:24.04
-RUN apt-get update && apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev git openssl  libssl-dev -y && git clone https://github.com/ggml-org/llama.cpp
+RUN apt-get update && apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev git openssl  libssl-dev python3-pip -y &&  pip install huggingface-hub && git clone https://github.com/ggml-org/llama.cpp
 RUN cmake llama.cpp -B llama.cpp/build -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=OFF -DLLAMA_OPENSSL=ON
 RUN cmake --build llama.cpp/build --config Release -j --clean-first --target llama-cli llama-mtmd-cli llama-server llama-gguf-split
 RUN cp llama.cpp/build/bin/llama-* llama.cpp
-RUN export LLAMA_CACHE="unsloth/Qwen3.5-27B-GGUF" && ./llama.cpp/llama-cli \
-    -hf unsloth/Qwen3.5-27B-GGUF:UD-Q4_K_XL \
-    --ctx-size 16384 \
-    --temp 0.6 \
-    --top-p 0.95 \
-    --top-k 20 \
-    --min-p 0.00 &
+RUN export LLAMA_CACHE="unsloth/Qwen3.5-27B-GGUF" && huggingface-cli download unsloth/Qwen3.5-27B-GGUF Qwen3.5-27B-UD-Q4_K_XL.gguf --local-dir /models --local-dir-use-symlinks False
 CMD "/bin/bash"
 
 ####################  阶段 1：builder  ####################
