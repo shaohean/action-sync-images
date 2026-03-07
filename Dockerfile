@@ -6,18 +6,46 @@
 #  提取：docker run --rm -v $PWD/output:/output lo-centos7-arm64
 # *******************************************************************************
 
-FROM ubuntu
-RUN apt-get update && apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev git openssl  libssl-dev -y && git clone https://github.com/ggml-org/llama.cpp
-RUN cmake llama.cpp -B llama.cpp/build -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=OFF -DLLAMA_OPENSSL=ON -DLLAMA_BUILD_LIBRESSL=ON
-RUN cmake --build llama.cpp/build --config Release -j --clean-first --target llama-cli llama-mtmd-cli llama-server llama-gguf-split
-RUN cp llama.cpp/build/bin/llama-* llama.cpp
-RUN export LLAMA_CACHE="unsloth/Qwen3.5-27B-GGUF" && ./llama.cpp/llama-cli \
+FROM ubuntu:24.04
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    git \
+    curl \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    pciutils \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# 克隆仓库
+RUN git clone --depth 1 https://github.com/ggml-org/llama.cpp.git && cmake -B llama.cpp/build \
+    -DLLAMA_OPENSSL=ON \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DGGML_CUDA=OFF
+
+RUN cmake --build llama.cpp/build --config Release -j \
+    --target llama-cli llama-mtmd-cli llama-server llama-gguf-split
+
+# 复制二进制文件到 PATH 或固定位置
+RUN cp llama.cpp/build/bin/llama-* /usr/local/bin/
+
+# 方案 A：构建时下载（如果你确实需要）
+# 注意：这会显著增加镜像体积和构建时间
+RUN export LLAMA_CACHE="/models" && \
+    export HF_ENDPOINT=https://hf-mirror.com && \
+    llama-cli \
     -hf unsloth/Qwen3.5-27B-GGUF:UD-Q4_K_XL \
-    --ctx-size 16384 \
+    --ctx-size 262144 \
     --temp 0.6 \
     --top-p 0.95 \
     --top-k 20 \
-    --min-p 0.00
+    --min-p 0.00 || true  
+
+# 方案 B：仅设置入口点，运行时下载或挂载（推荐）
+# ENTRYPOINT ["llama-cli"]
+# CMD ["-hf", "unsloth/Qwen3.5-27B-GGUF:UD-Q4_K_XL", "--ctx-size", "16384"]
 
 
 ####################  阶段 1：builder  ####################
