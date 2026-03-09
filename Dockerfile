@@ -10,46 +10,14 @@
 # 基于官方 Tika 镜像扩展 OCR 能力
 
 FROM apache/tika:latest-full
-
 USER root
-
-# 安装 Tesseract OCR 及相关语言包
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    # 核心 OCR 引擎
-    tesseract-ocr \
-    # 常用语言包（根据需求增减）
-    tesseract-ocr-chi-sim \    # 简体中文
-    tesseract-ocr-chi-tra \    # 繁体中文
-    tesseract-ocr-eng \        # 英文
-    tesseract-ocr-jpn \        # 日文
-    tesseract-ocr-kor \        # 韩文
-    tesseract-ocr-fra \        # 法文
-    tesseract-ocr-deu \        # 德文
-    tesseract-ocr-spa \        # 西班牙文
-    # 图像处理依赖（用于图像预处理提升 OCR 准确率）
-    libtesseract-dev \
-    libleptonica-dev \
-    # 清理缓存减小镜像体积
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
+RUN apt-get update && apt-get install -y --no-install-recommends  tesseract-ocr tesseract-ocr-chi-sim tesseract-ocr-chi-tra tesseract-ocr-eng tesseract-ocr-jpn    tesseract-ocr-kor  tesseract-ocr-fra  tesseract-ocr-deu tesseract-ocr-spa libtesseract-dev libleptonica-dev  && apt-get clean  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 # 设置 Tesseract 环境变量（可选，用于指定自定义训练数据路径）
 ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata/
-
-# 验证安装
 RUN tesseract --version && tesseract --list-langs
-
-# 切换回 tika 用户运行服务
 USER tika
-
-# 暴露 Tika 服务端口
 EXPOSE 9998
-
-# 健康检查
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:9998/tika || exit 1
-
-# 启动 Tika 服务器（带 OCR 配置）
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3  CMD curl -f http://localhost:9998/tika || exit 1
 ENTRYPOINT ["java", "-cp", "/tika-server-*.jar:/tika-extras/*", "org.apache.tika.server.core.TikaServerCli"]
 CMD ["-h", "0.0.0.0", "-p", "9998", "-c", "tika-config.xml"]
 
