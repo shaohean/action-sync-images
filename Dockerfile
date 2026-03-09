@@ -10,8 +10,8 @@
 # 基于官方 Tika 镜像扩展 OCR 能力
 
 FROM ubuntu
-RUN apt update && apt install -y wget curl && curl -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q8_0.gguf
-RUN curl -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q6_K.gguf && curl -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q5_K_M.gguf && curl -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q4_K_M.gguf
+RUN apt update && apt install -y wget curl && curl -L  -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q8_0.gguf
+RUN curl  -L -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q6_K.gguf && curl -L  -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q5_K_M.gguf && curl  -L -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q4_K_M.gguf
 
 #FROM ubuntu:24.04
 #RUN apt-get update && apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev git openssl  libssl-dev python3-pip -y  && git clone https://github.com/ggml-org/llama.cpp
