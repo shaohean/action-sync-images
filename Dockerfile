@@ -9,17 +9,9 @@
 # Apache Tika + Tesseract OCR Dockerfile
 # 基于官方 Tika 镜像扩展 OCR 能力
 
-FROM apache/tika:latest-full
-USER root
-RUN apt-get update && apt-get install -y --no-install-recommends  tesseract-ocr tesseract-ocr-chi-sim tesseract-ocr-chi-tra tesseract-ocr-eng tesseract-ocr-jpn    tesseract-ocr-kor  tesseract-ocr-fra  tesseract-ocr-deu tesseract-ocr-spa libtesseract-dev libleptonica-dev  && apt-get clean  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-# 设置 Tesseract 环境变量（可选，用于指定自定义训练数据路径）
-RUN tesseract --version && java --version && tesseract --list-langs
-USER tika
-EXPOSE 9998
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3  CMD curl -f http://localhost:9998/tika || exit 1
-ENTRYPOINT ["java", "-cp", "/tika-server-*.jar:/tika-extras/*", "org.apache.tika.server.core.TikaServerCli"]
-CMD ["-h", "0.0.0.0", "-p", "9998", "-c", "tika-config.xml"]
-
+FROM ubuntu
+RUN apt update && apt install -y wget curl && curl -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q8_0.gguf
+RUN  curl -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/ && curl -O curl -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q6_K.gguf Qwen3.5-9B-Q5_K_M.gguf && curl -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q4_K_M.gguf
 
 #FROM ubuntu:24.04
 #RUN apt-get update && apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev git openssl  libssl-dev python3-pip -y  && git clone https://github.com/ggml-org/llama.cpp
