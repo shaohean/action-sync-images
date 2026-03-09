@@ -6,14 +6,62 @@
 #  提取：docker run --rm -v $PWD/output:/output lo-centos7-arm64
 # *******************************************************************************
 
-FROM ubuntu:24.04
-RUN apt-get update && apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev git openssl  libssl-dev python3-pip -y  && git clone https://github.com/ggml-org/llama.cpp
-RUN cmake llama.cpp -B llama.cpp/build -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=OFF -DLLAMA_OPENSSL=ON
-RUN cmake --build llama.cpp/build --config Release -j --clean-first --target llama-cli llama-mtmd-cli llama-server llama-gguf-split
-RUN cp llama.cpp/build/bin/llama-* llama.cpp && cp -a llama.cpp/build/bin/llama-* /usr/local/bin/
-RUN export LLAMA_CACHE="unsloth/Qwen3.5-27B-GGUF" && mkdir -p /models && curl -L -o /models/Qwen3.5-27B-UD-Q4_K_XL.gguf "https://huggingface.co/unsloth/Qwen3.5-27B-GGUF/resolve/main/Qwen3.5-27B-UD-Q4_K_XL.gguf"
-ENTRYPOINT ["llama-cli"]
-CMD ["-m", "/models/Qwen3.5-27B-UD-Q4_K_XL.gguf", "--ctx-size", "131072"]
+# Apache Tika + Tesseract OCR Dockerfile
+# 基于官方 Tika 镜像扩展 OCR 能力
+
+FROM apache/tika:latest-full
+
+USER root
+
+# 安装 Tesseract OCR 及相关语言包
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # 核心 OCR 引擎
+    tesseract-ocr \
+    # 常用语言包（根据需求增减）
+    tesseract-ocr-chi-sim \    # 简体中文
+    tesseract-ocr-chi-tra \    # 繁体中文
+    tesseract-ocr-eng \        # 英文
+    tesseract-ocr-jpn \        # 日文
+    tesseract-ocr-kor \        # 韩文
+    tesseract-ocr-fra \        # 法文
+    tesseract-ocr-deu \        # 德文
+    tesseract-ocr-spa \        # 西班牙文
+    # 图像处理依赖（用于图像预处理提升 OCR 准确率）
+    libtesseract-dev \
+    libleptonica-dev \
+    # 清理缓存减小镜像体积
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# 设置 Tesseract 环境变量（可选，用于指定自定义训练数据路径）
+ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata/
+
+# 验证安装
+RUN tesseract --version && tesseract --list-langs
+
+# 切换回 tika 用户运行服务
+USER tika
+
+# 暴露 Tika 服务端口
+EXPOSE 9998
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:9998/tika || exit 1
+
+# 启动 Tika 服务器（带 OCR 配置）
+ENTRYPOINT ["java", "-cp", "/tika-server-*.jar:/tika-extras/*", "org.apache.tika.server.core.TikaServerCli"]
+CMD ["-h", "0.0.0.0", "-p", "9998", "-c", "tika-config.xml"]
+
+
+#FROM ubuntu:24.04
+#RUN apt-get update && apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev git openssl  libssl-dev python3-pip -y  && git clone https://github.com/ggml-org/llama.cpp
+#RUN cmake llama.cpp -B llama.cpp/build -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=OFF -DLLAMA_OPENSSL=ON
+#RUN cmake --build llama.cpp/build --config Release -j --clean-first --target llama-cli llama-mtmd-cli llama-server llama-gguf-split
+#RUN cp llama.cpp/build/bin/llama-* llama.cpp && cp -a llama.cpp/build/bin/llama-* /usr/local/bin/
+#RUN export LLAMA_CACHE="unsloth/Qwen3.5-27B-GGUF" && mkdir -p /models && curl -L -o /models/Qwen3.5-27B-UD-Q4_K_XL.gguf "https://huggingface.co/unsloth/Qwen3.5-27B-GGUF/resolve/main/Qwen3.5-27B-UD-Q4_K_XL.gguf"
+#ENTRYPOINT ["llama-cli"]
+#CMD ["-m", "/models/Qwen3.5-27B-UD-Q4_K_XL.gguf", "--ctx-size", "131072"]
 
 ####################  阶段 1：builder  ####################
 #FROM ollama/ollama
