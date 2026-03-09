@@ -13,8 +13,7 @@ FROM apache/tika:latest-full
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends  tesseract-ocr tesseract-ocr-chi-sim tesseract-ocr-chi-tra tesseract-ocr-eng tesseract-ocr-jpn    tesseract-ocr-kor  tesseract-ocr-fra  tesseract-ocr-deu tesseract-ocr-spa libtesseract-dev libleptonica-dev  && apt-get clean  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 # 设置 Tesseract 环境变量（可选，用于指定自定义训练数据路径）
-ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata/
-RUN tesseract --version && tesseract --list-langs
+RUN tesseract --version && java --version && tesseract --list-langs
 USER tika
 EXPOSE 9998
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3  CMD curl -f http://localhost:9998/tika || exit 1
