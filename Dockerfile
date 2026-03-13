@@ -1,4 +1,3 @@
-
 # 使用官方 Ollama 镜像作为基础
 FROM ollama/ollama:latest
 
@@ -21,43 +20,18 @@ WORKDIR /app
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
-# 预下载 Qwen3.5-9B 模型（在构建时下载，确保离线可用）
-# 先启动 ollama 服务，然后拉取模型，最后停止服务
-RUN bash -c '\
-    # 后台启动 ollama 服务 \
-    ollama serve & \
-    SERVER_PID=$! \
-    \
-    # 等待服务启动 \
-    sleep 5 \
-    \
-    # 等待 ollama 就绪 \
-    until curl -s http://localhost:11434/api/tags > /dev/null 2>&1; do \
-        echo "等待 Ollama 服务启动..." \
-        sleep 2 \
-    done \
-    \
-    # 拉取 Qwen3.5-9B 模型 \
-    echo "正在下载 qwen2.5:9b 模型（构建时下载，约 6GB，请耐心等待）..." \
-    ollama pull qwen2.5:9b \
-    \
-    # 验证模型是否下载成功 \
-    echo "验证模型..." \
-    ollama list \
-    \
-    # 停止服务 \
-    kill $SERVER_PID \
-    wait $SERVER_PID 2>/dev/null || true \
-    \
-    echo "模型下载完成！" \
-'
+# 复制模型下载脚本
+COPY download-model.sh /app/download-model.sh
+RUN chmod +x /app/download-model.sh
+
+# 执行模型下载脚本（在构建时下载，确保离线可用）
+RUN /app/download-model.sh
 
 # 暴露 Ollama 端口
 EXPOSE 11434
 
 # 使用自定义启动脚本
 ENTRYPOINT ["/app/entrypoint.sh"]
-
 
 
 # Apache Tika + Tesseract OCR Dockerfile
