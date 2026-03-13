@@ -24,7 +24,7 @@ echo "Ollama 服务已就绪！"
 # 拉取 Qwen2.5-9B 模型
 echo ""
 echo "正在下载 qwen3.5:9b 模型（约 6GB，请耐心等待）..."
-ollama pull qwen3.5:9b
+ollama pull qwen3.5:27b
 
 # 验证模型是否下载成功
 echo ""
