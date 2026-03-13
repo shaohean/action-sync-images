@@ -1,18 +1,73 @@
-# *******************************************************************************
-#  ARM64 (aarch64) 多阶段 Dockerfile
-#  阶段 1：完整编译 LibreOffice 25.8.4.2
-#  阶段 2：仅保留 RPM 与提取脚本，体积 ≈ 200 MB
-#  构建：docker build --build-arg MAKE_JOBS=8 -t lo-centos7-arm64 .
-#  提取：docker run --rm -v $PWD/output:/output lo-centos7-arm64
-# *******************************************************************************
+
+# 使用官方 Ollama 镜像作为基础
+FROM ollama/ollama:latest
+
+# 设置环境变量
+ENV OLLAMA_HOST=0.0.0.0:11434
+ENV OLLAMA_ORIGINS=*
+# CPU 模式（不加载 GPU 库）
+ENV OLLAMA_GPU_OVERHEAD=1
+ENV OLLAMA_LOAD_TIMEOUT=30m
+
+# 安装必要的工具
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# 创建工作目录
+WORKDIR /app
+
+# 复制启动脚本
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# 预下载 Qwen3.5-9B 模型（在构建时下载，确保离线可用）
+# 先启动 ollama 服务，然后拉取模型，最后停止服务
+RUN bash -c '\
+    # 后台启动 ollama 服务 \
+    ollama serve & \
+    SERVER_PID=$! \
+    \
+    # 等待服务启动 \
+    sleep 5 \
+    \
+    # 等待 ollama 就绪 \
+    until curl -s http://localhost:11434/api/tags > /dev/null 2>&1; do \
+        echo "等待 Ollama 服务启动..." \
+        sleep 2 \
+    done \
+    \
+    # 拉取 Qwen3.5-9B 模型 \
+    echo "正在下载 qwen2.5:9b 模型（构建时下载，约 6GB，请耐心等待）..." \
+    ollama pull qwen2.5:9b \
+    \
+    # 验证模型是否下载成功 \
+    echo "验证模型..." \
+    ollama list \
+    \
+    # 停止服务 \
+    kill $SERVER_PID \
+    wait $SERVER_PID 2>/dev/null || true \
+    \
+    echo "模型下载完成！" \
+'
+
+# 暴露 Ollama 端口
+EXPOSE 11434
+
+# 使用自定义启动脚本
+ENTRYPOINT ["/app/entrypoint.sh"]
+
+
 
 # Apache Tika + Tesseract OCR Dockerfile
 # 基于官方 Tika 镜像扩展 OCR 能力
+####下载模型####
+#FROM ubuntu
+#RUN apt update && apt install -y wget curl && curl -L  -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q8_0.gguf
+#RUN curl  -L -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q6_K.gguf && curl -L  -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q5_K_M.gguf && curl  -L -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q4_K_M.gguf
 
-FROM ubuntu
-RUN apt update && apt install -y wget curl && curl -L  -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q8_0.gguf
-RUN curl  -L -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q6_K.gguf && curl -L  -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q5_K_M.gguf && curl  -L -O https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/main/Qwen3.5-9B-Q4_K_M.gguf
-
+####安装部署llama.app
 #FROM ubuntu:24.04
 #RUN apt-get update && apt-get install pciutils build-essential cmake curl libcurl4-openssl-dev git openssl  libssl-dev python3-pip -y  && git clone https://github.com/ggml-org/llama.cpp
 #RUN cmake llama.cpp -B llama.cpp/build -DBUILD_SHARED_LIBS=OFF -DGGML_CUDA=OFF -DLLAMA_OPENSSL=ON
