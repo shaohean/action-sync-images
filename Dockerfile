@@ -1,5 +1,5 @@
 FROM ubuntu:24.04
-RUN apt update && apt install -y wget curl net-tools  xz-utils && wget https://nodejs.org/dist/v24.14.0/node-v24.14.0-linux-x64.tar.xz && tar -xf node-v24.14.0-linux-x64.tar.xz &&mv node-v24.14.0-linux-x64 /usr/local/lib/nodejs && ln -s /usr/local/lib/nodejs/bin/node /usr/local/bin/node && ln -s /usr/local/lib/nodejs/bin/npm /usr/local/bin/npm && ln -s /usr/local/lib/nodejs/bin/npx /usr/local/bin/npx && node -v && npm -v && npm config set registry https://registry.npmmirror.com/
+RUN apt update && apt install -y wget curl net-tools git xz-utils && wget https://nodejs.org/dist/v24.14.0/node-v24.14.0-linux-x64.tar.xz && tar -xf node-v24.14.0-linux-x64.tar.xz &&mv node-v24.14.0-linux-x64 /usr/local/lib/nodejs && ln -s /usr/local/lib/nodejs/bin/node /usr/local/bin/node && ln -s /usr/local/lib/nodejs/bin/npm /usr/local/bin/npm && ln -s /usr/local/lib/nodejs/bin/npx /usr/local/bin/npx && node -v && npm -v && npm config set registry https://registry.npmmirror.com/
 RUN npm install -g openclaw@latest && openclaw onboard --install-daemon
 
 
