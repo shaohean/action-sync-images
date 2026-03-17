@@ -1,37 +1,26 @@
-# 使用官方 Ollama 镜像作为基础
-FROM ollama/ollama:latest
+FROM python:3.12
+RUN pip install modelscope && modelscope download --model Qwen/Qwen3-VL-32B-Instruct
 
-# 设置环境变量
-ENV OLLAMA_HOST=0.0.0.0:11434
-ENV OLLAMA_ORIGINS=*
-# CPU 模式（不加载 GPU 库）
-ENV OLLAMA_GPU_OVERHEAD=1
-ENV OLLAMA_LOAD_TIMEOUT=30m
 
-# 安装必要的工具
-RUN apt-get update && apt-get install -y \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
 
-# 创建工作目录
-WORKDIR /app
-
-# 复制启动脚本
-COPY entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
-
-# 复制模型下载脚本
-COPY download-model.sh /app/download-model.sh
-RUN chmod +x /app/download-model.sh
-
-# 执行模型下载脚本（在构建时下载，确保离线可用）
-RUN /app/download-model.sh
-
-# 暴露 Ollama 端口
-EXPOSE 11434
-
-# 使用自定义启动脚本
-ENTRYPOINT ["/app/entrypoint.sh"]
+## 使用官方 Ollama 镜像作为基础，下载其他镜像
+#FROM ollama/ollama:latest
+#ENV OLLAMA_HOST=0.0.0.0:11434
+#ENV OLLAMA_ORIGINS=*
+## CPU 模式（不加载 GPU 库）
+#ENV OLLAMA_GPU_OVERHEAD=1
+#ENV OLLAMA_LOAD_TIMEOUT=30m
+#RUN apt-get update && apt-get install -y \
+#    curl \
+#    && rm -rf /var/lib/apt/lists/*
+#WORKDIR /app
+#COPY entrypoint.sh /app/entrypoint.sh
+#RUN chmod +x /app/entrypoint.sh
+#COPY download-model.sh /app/download-model.sh
+#RUN chmod +x /app/download-model.sh
+#RUN /app/download-model.sh
+#EXPOSE 11434
+#ENTRYPOINT ["/app/entrypoint.sh"]
 
 
 # Apache Tika + Tesseract OCR Dockerfile
