@@ -1,5 +1,5 @@
 FROM python:3.12
-RUN pip install modelscope && modelscope download --model Qwen/Qwen3-VL-32B-Instruct
+RUN pip install modelscope packaging  && modelscope download --model Qwen/Qwen3-VL-32B-Instruct
 
 
 
