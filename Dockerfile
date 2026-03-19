@@ -1,7 +1,33 @@
-FROM ubuntu:24.04
-ENV PATH="/usr/local/lib/nodejs/bin:${PATH}"
-RUN apt update && apt install -y wget curl net-tools git xz-utils chromium-browser libgbm-dev libnss3 libatk-bridge2.0-0 && wget https://nodejs.org/dist/v24.14.0/node-v24.14.0-linux-x64.tar.xz && tar -xf node-v24.14.0-linux-x64.tar.xz &&mv node-v24.14.0-linux-x64 /usr/local/lib/nodejs && ln -s /usr/local/lib/nodejs/bin/node /usr/local/bin/node && ln -s /usr/local/lib/nodejs/bin/npm /usr/local/bin/npm && ln -s /usr/local/lib/nodejs/bin/npx /usr/local/bin/npx && node -v && npm -v && npm config set registry https://registry.npmmirror.com/ && npm install -g openclaw@latest && openclaw onboard --non-interactive --accept-risk  --skip-health
-CMD ["openclaw", "gateway", "run", "--verbose"]
+FROM git
+RUN mkdir -p bower-components && cd bower-components
+RUN git clone --depth 1 --branch v1.8.3 https://github.com/angular/bower-angular.git angular
+RUN git clone --depth 1 --branch v1.8.3 https://github.com/angular/bower-angular-animate.git angular-animate
+RUN git clone --depth 1 --branch v1.8.3 https://github.com/angular/bower-angular-aria.git angular-aria
+RUN git clone --depth 1 --branch v1.8.3 https://github.com/angular/bower-angular-mocks.git angular-mocks
+RUN git clone --depth 1 --branch v1.8.3 https://github.com/angular/bower-angular-resource.git angular-resource
+RUN git clone --depth 1 --branch v1.8.3 https://github.com/angular/bower-angular-sanitize.git angular-sanitize
+RUN git clone --depth 1 --branch 2.19.0 https://github.com/angular-translate/bower-angular-translate-loader-static-files.git angular-translate-loader-static-files
+RUN git clone --depth 1 --branch 0.2.18 https://github.com/angular-ui/angular-ui-router-bower.git angular-ui-router
+RUN git clone --depth 1 --branch v0.10.10 https://github.com/daniel-nagy/md-data-table.git angular-material-data-table
+RUN git clone --depth 1 https://github.com/wwestlake/angular-yamljs.git angular-yamljs
+RUN git clone --depth 1 --branch v3.3.7 https://github.com/twbs/bootstrap.git bootstrap
+RUN git clone --depth 1 --branch 4.7.0 https://github.com/components/font-awesome.git components-font-awesome
+RUN git clone --depth 1 --branch 3.11.0 https://github.com/nodeca/js-yaml.git js-yaml
+RUN git clone --depth 1 --branch v3.10.1 https://github.com/Stuk/jszip.git jszip
+RUN git clone --depth 1 --branch v3.3.2 https://github.com/swagger-api/swagger-ui.git swagger-ui
+RUN git clone --depth 1 https://github.com/asifdxtreme/angular-swagger-ui.git angular-swagger-ui
+RUN git clone https://github.com/afuersch/css-percentage-circle.git css-percentage-circle
+RUN cd css-percentage-circle && git checkout c9f4ea10400cb321c424692868f9e712822cd4e6 && cd ..
+RUN git clone --depth 1 --branch v4.21.0 https://github.com/almende/vis.git vis
+RUN cd ..
+RUN tar czvf bower-components.tar.gz bower-components/
+RUN echo "Done! File: bower-components.tar.gz"
+
+#openclaw安装
+#FROM ubuntu:24.04
+#ENV PATH="/usr/local/lib/nodejs/bin:${PATH}"
+#RUN apt update && apt install -y wget curl net-tools git xz-utils chromium-browser libgbm-dev libnss3 libatk-bridge2.0-0 && wget https://nodejs.org/dist/v24.14.0/node-v24.14.0-linux-x64.tar.xz && tar -xf node-v24.14.0-linux-x64.tar.xz &&mv node-v24.14.0-linux-x64 /usr/local/lib/nodejs && ln -s /usr/local/lib/nodejs/bin/node /usr/local/bin/node && ln -s /usr/local/lib/nodejs/bin/npm /usr/local/bin/npm && ln -s /usr/local/lib/nodejs/bin/npx /usr/local/bin/npx && node -v && npm -v && npm config set registry https://registry.npmmirror.com/ && npm install -g openclaw@latest && openclaw onboard --non-interactive --accept-risk  --skip-health
+#CMD ["openclaw", "gateway", "run", "--verbose"]
 
 
 
