@@ -1,4 +1,5 @@
-FROM git
+FROM ubuntu:24.04
+RUN apt update && apt install git tar -y
 RUN mkdir -p bower-components && cd bower-components
 RUN git clone --depth 1 --branch v1.8.3 https://github.com/angular/bower-angular.git angular
 RUN git clone --depth 1 --branch v1.8.3 https://github.com/angular/bower-angular-animate.git angular-animate
