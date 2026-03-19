@@ -10,7 +10,7 @@ RUN git clone --depth 1 --branch v1.8.3 https://github.com/angular/bower-angular
 RUN git clone --depth 1 --branch 2.19.0 https://github.com/angular-translate/bower-angular-translate-loader-static-files.git angular-translate-loader-static-files
 RUN git clone --depth 1 --branch 0.2.18 https://github.com/angular-ui/angular-ui-router-bower.git angular-ui-router
 RUN git clone --depth 1 --branch v0.10.10 https://github.com/daniel-nagy/md-data-table.git angular-material-data-table
-RUN git clone --depth 1 https://github.com/wwestlake/angular-yamljs.git angular-yamljs
+#RUN git clone --depth 1 https://github.com/wwestlake/angular-yamljs.git angular-yamljs
 RUN git clone --depth 1 --branch v3.3.7 https://github.com/twbs/bootstrap.git bootstrap
 RUN git clone --depth 1 --branch 4.7.0 https://github.com/components/font-awesome.git components-font-awesome
 RUN git clone --depth 1 --branch 3.11.0 https://github.com/nodeca/js-yaml.git js-yaml
