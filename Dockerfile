@@ -1,5 +1,5 @@
 FROM redhat/ubi10:10.1
-RUN dnf install -y freetype fontconfig ttmkfdir unzip wget curl net-tools
+RUN dnf install -y freetype fontconfig ttmkfdir unzip wget curl net-tools glibc-langpack-zh
 ENV LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8
 #RUN fc-list :lang=zh | grep -E "(宋体|SimSun|Noto|wqy)"
 
