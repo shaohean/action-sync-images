@@ -1,6 +1,6 @@
 FROM redhat/ubi10:10.1
 RUN dnf install -y freetype fontconfig ttmkfdir unzip wget curl net-tools 
-RUN curl -L -o claude-desktop-setup.exe "https://downloads.claude.ai/releases/win32/x64/1.1.7203/claudeSetup-034f0796e916559a4e40673b6ee944c25a8478b2.exe' && ls -lha clau*
+RUN curl -L -o claude-desktop-setup.exe "https://downloads.claude.ai/releases/win32/x64/1.1.7203/claudeSetup-034f0796e916559a4e40673b6ee944c25a8478b2.exe" && ls -lha clau*
 
 #openclaw安装
 #FROM ubuntu:24.04
