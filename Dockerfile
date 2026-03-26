@@ -1,6 +1,6 @@
 FROM redhat/ubi10:10.1
 RUN dnf install -y freetype fontconfig ttmkfdir unzip wget curl net-tools 
-#RUN fc-list :lang=zh | grep -E "(宋体|SimSun|Noto|wqy)"
+RUN curl -LO https://downloads.claude.ai/releases/win32/x64/1.1.7203/claudesetup-034f0796e916559a4e40673b6ee944c25a8478b2.exe
 
 #openclaw安装
 #FROM ubuntu:24.04
