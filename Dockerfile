@@ -1,6 +1,6 @@
 FROM redhat/ubi10:10.1
 RUN dnf install -y freetype fontconfig ttmkfdir unzip wget curl net-tools 
-RUN curl -L -o aaaa.zip "https://github.com/Eugeny/tabby/releases/download/v1.0.230/tabby-1.0.230-setup-x64.exe"
+RUN curl -L -o aaaa.zip "https://download.mobatek.net/2612026022582601/MobaXterm_Portable_v26.1.zip"
 
 
 #openclaw安装
