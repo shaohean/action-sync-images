@@ -1,6 +1,6 @@
-FROM redhat/ubi10:10.1
+FROM redhat/ubi9:9.6
 RUN dnf install -y freetype fontconfig ttmkfdir unzip wget curl net-tools 
-RUN curl -L -o aaaa.zip "https://download.mobatek.net/2612026022582601/MobaXterm_Portable_v26.1.zip"
+RUN curl -sO https://packages.wazuh.com/4.14/wazuh-install.sh && chmod 744 wazuh-install.sh && ./wazuh-install.sh -dw rpm -da x86_64 && curl -sO https://packages.wazuh.com/4.14/config.yml && sed -i 's/127.0.0.1/10.169.23.51/g' config.yml &&  ./wazuh-install.sh -g
 
 
 #openclaw安装
