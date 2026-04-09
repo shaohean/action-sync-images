@@ -1,5 +1,5 @@
 FROM ubuntu
-RUN apt update && apt install -y freetype fontconfig ttmkfdir unzip wget tar net-tools sudo curl
+RUN apt update && apt install -y unzip wget tar net-tools sudo curl
 RUN curl -sO https://packages.wazuh.com/4.14/wazuh-install.sh && chmod 744 wazuh-install.sh && ./wazuh-install.sh -dw rpm -da x86_64 && curl -sO https://packages.wazuh.com/4.14/config.yml && sed -i 's/ip:.*/ip: "10.169.23.51"/g' config.yml &&  ./wazuh-install.sh -g
 
 
