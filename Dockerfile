@@ -45,7 +45,7 @@ RUN /bin/bash -c "wget https://github.com/opendatalab/MinerU/raw/magic_pdf-1.3.7
     pip3 install 'magic-pdf[full]==1.3.7' -i https://mirrors.aliyun.com/pypi/simple"
 
 # Download models and update the configuration file
-RUN /bin/bash -c "pip3 install huggingface_hub && \
+RUN /bin/bash -c "pip3 install huggingface_hub requests && \
     wget https://github.com/opendatalab/MinerU/raw/magic_pdf-1.3.7-released/scripts/download_models_hf.py  -O download_models.py && \
     python3 download_models.py && \
     sed -i 's|cpu|cuda|g' /root/magic-pdf.json"
