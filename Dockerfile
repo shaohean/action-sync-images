@@ -13,7 +13,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # 安装 MinerU 1.3.7 版本（指定版本号）
-RUN python3 -m pip install -U 'mineru[core]==1.3.7' --break-system-packages && \
+RUN python3 -m pip install -U 'mineru[core]==magic_pdf-1.3.7-released' --break-system-packages && \
     python3 -m pip cache purge
 
 # 下载模型文件
