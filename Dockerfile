@@ -10,9 +10,8 @@ RUN apt-get update && \
     add-apt-repository ppa:deadsnakes/ppa && \
     apt-get update && \
     apt-get install -y \
-        python3.10 \
-        python3.10-venv \
-        python3.10-distutils \
+        python3.12 \
+        python3.12-venv \
         python3-pip \
         wget \
         git \
@@ -31,7 +30,7 @@ RUN apt-get update && \
         && rm -rf /var/lib/apt/lists/*
 
 # Set Python 3.10 as the default python3
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
 
 # Create a virtual environment for MinerU
 RUN python3 -m venv /opt/mineru_venv
