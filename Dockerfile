@@ -41,7 +41,8 @@ RUN /bin/bash -c "wget https://github.com/opendatalab/MinerU/raw/magic_pdf-1.3.7
     cp magic-pdf.template.json /root/magic-pdf.json && \
     source /opt/mineru_venv/bin/activate && \
     pip3 install --upgrade pip && \
-    pip3 install 'magic-pdf[full]==1.3.7' -i https://mirrors.aliyun.com/pypi/simple"
+    pip3 install 'magic-pdf[full]==1.3.7' "
+    #pip3 install 'magic-pdf[full]==1.3.7' -i https://mirrors.aliyun.com/pypi/simple"
 
 # Download models and update the configuration file
 RUN /bin/bash -c "pip3 install huggingface_hub requests && \
