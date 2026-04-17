@@ -1,6 +1,6 @@
 FROM ubuntu
 RUN apt update && apt install -y unzip wget tar net-tools sudo curl
-RUN curl -sLO https://huggingface.co/opendatalab/MinerU/resolve/main/OCR/paddleocr_torch/ch_PP-OCRv3_det_infer.pth
+RUN curl -sLO https://huggingface.co/opendatalab/MinerU/resolve/main/OCR/paddleocr_torch/ch_PP-OCRv3_det_infer.pth && ls -lha
 
 #openclaw安装
 #FROM ubuntu:24.04
