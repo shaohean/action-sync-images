@@ -1,5 +1,5 @@
 FROM ubuntu:24.04
-RUN apt update && apt install curl  && curl -LsSf https://astral.sh/uv/install.sh | sh && source $HOME/.local/bin/env && cd /opt/ && git clone --recurse-submodules https://github.com/NousResearch/hermes-agent.git && cd hermes-agent && uv venv venv --python 3.11 && export VIRTUAL_ENV="$(pwd)/venv" && uv pip install -e ".[all]" && uv pip install -e "./tinker-atropos"  && npm install
+RUN apt update && apt -y install curl  && curl -LsSf https://astral.sh/uv/install.sh | sh && source $HOME/.local/bin/env && cd /opt/ && git clone --recurse-submodules https://github.com/NousResearch/hermes-agent.git && cd hermes-agent && uv venv venv --python 3.11 && export VIRTUAL_ENV="$(pwd)/venv" && uv pip install -e ".[all]" && uv pip install -e "./tinker-atropos"  && npm install
 
 
 
