@@ -1,5 +1,6 @@
 FROM python:3.12
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh &&  cd /opt/ && git clone --recurse-submodules https://github.com/NousResearch/hermes-agent.git && cd hermes-agent && uv venv venv --python 3.11 && export VIRTUAL_ENV="$(pwd)/venv" && uv pip install -e ".[all]" && uv pip install -e "./tinker-atropos" 
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh &&  cd /opt/ && git clone --recurse-submodules https://github.com/NousResearch/hermes-agent.git && cd hermes-agent && uv venv venv --python 3.11 && export VIRTUAL_ENV="$(pwd)/venv" && uv pip install -e ".[all]" && uv pip install -e "./tinker-atropos"  && npm install
+
 
 
 
