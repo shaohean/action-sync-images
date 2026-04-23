@@ -1,57 +1,6 @@
-# Use the official Ubuntu base image
-FROM nvidia/cuda:12.6.0-base-ubuntu22.04
+FROM python:3.12
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh &&  cd /opt/ && git clone --recurse-submodules https://github.com/NousResearch/hermes-agent.git && cd hermes-agent
 
-# Set environment variables to non-interactive to avoid prompts during installation
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Update the package list and install necessary packages
-RUN apt-get update && \
-    apt-get install -y \
-        software-properties-common && \
-    add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get update && \
-    apt-get install -y \
-        python3.10 \
-        python3.10-venv \
-        python3.10-distutils \
-        python3-pip \
-        wget \
-        git \
-        libgl1 \
-        libreoffice \
-        fonts-noto-cjk \
-        fonts-wqy-zenhei \
-        fonts-wqy-microhei \
-        ttf-mscorefonts-installer \
-        fontconfig \
-        libglib2.0-0 \
-        libxrender1 \
-        libsm6 \
-        libxext6 \
-        poppler-utils \
-        && rm -rf /var/lib/apt/lists/*
-
-# Set Python 3.10 as the default python3
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
-
-# Create a virtual environment for MinerU
-RUN python3 -m venv /opt/mineru_venv
-
-# Copy the configuration file template and install magic-pdf latest
-RUN /bin/bash -c "wget https://github.com/opendatalab/MinerU/raw/magic_pdf-1.3.7-released/magic-pdf.template.json && \
-    cp magic-pdf.template.json /root/magic-pdf.json && \
-    source /opt/mineru_venv/bin/activate && \
-    pip3 install --upgrade pip && pip3 install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0  && \
-    pip3 install -U magic-pdf[full]==1.3.7"
-
-# Download models and update the configuration file
-RUN /bin/bash -c "pip3 install huggingface_hub requests && \
-    wget https://github.com/opendatalab/MinerU/raw/magic_pdf-1.3.7-released/scripts/download_models_hf.py -O download_models.py && \
-    python3 download_models.py && \
-    sed -i 's|cpu|cuda|g' /root/magic-pdf.json"
-
-# Set the entry point to activate the virtual environment and run the command line tool
-ENTRYPOINT ["/bin/bash", "-c", "source /opt/mineru_venv/bin/activate && exec \"$@\"", "--"]
 
 
 #FROM ubuntu
