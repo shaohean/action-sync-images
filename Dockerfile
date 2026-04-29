@@ -1,6 +1,6 @@
 FROM ubuntu:24.04
 ENV PATH="/root/.local/bin:${PATH}"
-RUN apt -y install curl git unzip jq  && curl -fsSL -o /root/.claude/downloads/claude-2.1.123-linux-x64 https://downloads.claude.ai/claude-code-releases/2.1.123/linux-x64/claude
+RUN apt -y install curl git unzip jq  && curl -fsSL -o /root/claude-2.1.123-linux-x64 https://downloads.claude.ai/claude-code-releases/2.1.123/linux-x64/claude
 
 
 
