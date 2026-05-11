@@ -1,7 +1,59 @@
-FROM ubuntu:24.04
-ENV PATH="/root/.local/bin:${PATH}"
-RUN apt update && apt -y install curl git unzip jq  && curl -fsSL -o /root/claude-2.1.123-linux-x64 https://downloads.claude.ai/claude-code-releases/2.1.123/linux-x64/claude
-RUN chmod 755 /root/claude-2.1.123-linux-x64 && /root/claude-2.1.123-linux-x64 install 
+FROM rockylinux:8
+
+ARG REDIS_VERSION=8.2.3
+ARG REDIS_DOWNLOAD_URL=https://github.com/redis/redis/archive/refs/tags/${REDIS_VERSION}.tar.gz
+
+ENV CC=gcc \
+    CXX=g++
+
+RUN yum groupinstall -y "Development Tools" \
+    && yum install -y \
+    wget \
+    ca-certificates \
+    openssl-devel \
+    && yum clean all
+
+WORKDIR /tmp
+RUN wget -O redis-${REDIS_VERSION}.tar.gz ${REDIS_DOWNLOAD_URL} \
+    && tar -xzf redis-${REDIS_VERSION}.tar.gz \
+    && rm redis-${REDIS_VERSION}.tar.gz
+
+WORKDIR /tmp/redis-${REDIS_VERSION}
+RUN make MALLOC=jemalloc BUILD_TLS=yes \
+    && make install PREFIX=/usr/local/redis
+
+RUN groupadd -r redis && useradd -r -g redis redis \
+    && mkdir -p /data /etc/redis \
+    && chown redis:redis /data /etc/redis
+
+ENV PATH=/usr/local/redis/bin:$PATH
+
+RUN cp /tmp/redis-${REDIS_VERSION}/redis.conf /etc/redis/redis.conf \
+    && sed -i 's/^bind 127.0.0.1/bind 0.0.0.0/' /etc/redis/redis.conf \
+    && sed -i 's/^protected-mode yes/protected-mode no/' /etc/redis/redis.conf \
+    && sed -i 's|^dir \./|dir /data|' /etc/redis/redis.conf \
+    && sed -i 's|^logfile ""|logfile /data/redis.log|' /etc/redis/redis.conf \
+    && chown redis:redis /etc/redis/redis.conf
+
+EXPOSE 6379
+
+VOLUME ["/data"]
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD redis-cli ping || exit 1
+
+USER redis
+
+WORKDIR /data
+
+CMD ["redis-server", "/etc/redis/redis.conf"]
+
+
+#claude code 
+#FROM ubuntu:24.04
+#ENV PATH="/root/.local/bin:${PATH}"
+#RUN apt update && apt -y install curl git unzip jq  && curl -fsSL -o /root/claude-2.1.123-linux-x64 https://downloads.claude.ai/claude-code-releases/2.1.123/linux-x64/claude
+#RUN chmod 755 /root/claude-2.1.123-linux-x64 && /root/claude-2.1.123-linux-x64 install 
 
 
 
