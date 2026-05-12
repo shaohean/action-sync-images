@@ -1,4 +1,4 @@
-FROM rockylinux:8.10
+FROM rockylinux/rockylinux:8.10
 
 ARG REDIS_VERSION=8.2.6
 ARG REDIS_DOWNLOAD_URL=https://github.com/redis/redis/archive/refs/tags/${REDIS_VERSION}.tar.gz
