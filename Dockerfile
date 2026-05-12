@@ -30,7 +30,6 @@ RUN cp /opt/rh/gcc-toolset-13/enable /etc/profile.d/gcc-toolset-13.sh &&     ech
 RUN CMAKE_VERSION=3.25.1 &&     ARCH=$(uname -m) &&     if [ "$ARCH" = "x86_64" ]; then         CMAKE_FILE=cmake-${CMAKE_VERSION}-linux-x86_64.sh;     else         CMAKE_FILE=cmake-${CMAKE_VERSION}-linux-aarch64.sh;     fi &&     wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/${CMAKE_FILE} &&     chmod +x ${CMAKE_FILE} &&     ./${CMAKE_FILE} --skip-license --prefix=/usr/local --exclude-subdir &&     rm ${CMAKE_FILE} &&     cmake --version
 
 # 7. 下载 Redis 源码 (默认 8.0.0，构建时可通过 --build-arg 覆盖)
-ARG REDIS_VERSION=8.0.0
 RUN cd /usr/src &&     wget -O redis-${REDIS_VERSION}.tar.gz https://github.com/redis/redis/archive/refs/tags/${REDIS_VERSION}.tar.gz &&     tar xvf redis-${REDIS_VERSION}.tar.gz &&     rm redis-${REDIS_VERSION}.tar.gz
 
 # 8. 编译 Redis
