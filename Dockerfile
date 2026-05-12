@@ -3,8 +3,6 @@ FROM rockylinux:8
 ARG REDIS_VERSION=8.2.3
 ARG REDIS_DOWNLOAD_URL=https://github.com/redis/redis/archive/refs/tags/${REDIS_VERSION}.tar.gz
 
-FROM rockylinux:8.10
-
 # 1. 安装基础工具
 RUN dnf clean all &&     dnf install -y sudo dnf &&     dnf clean all
 
