@@ -6,7 +6,7 @@ ARG REDIS_DOWNLOAD_URL=https://github.com/redis/redis/archive/refs/tags/${REDIS_
 # 1. 安装基础工具
 RUN dnf clean all &&     dnf install -y sudo dnf &&     dnf clean all
 
-# 2. 添加 GoReleaser 仓库并更新系统
+# 2. 添加 GoReleaser 仓库并更新系统1
 RUN tee /etc/yum.repos.d/goreleaser.repo > /dev/null <<'EOF'
 [goreleaser]
 name=GoReleaser
