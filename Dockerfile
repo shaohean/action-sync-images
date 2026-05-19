@@ -2,7 +2,7 @@
 FROM ubuntu:24.04
 
 ENV PATH="/root/.local/bin:${PATH}"
-ARG CLAUDE_VERSION=2.1.124
+ARG CLAUDE_VERSION=2.1.136
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl git unzip jq \
