@@ -5,12 +5,11 @@ ENV PATH="/root/.local/bin:${PATH}"
 ARG CLAUDE_VERSION=2.1.136
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl git unzip jq \
+    ca-certificates curl git unzip jq \
     && curl -fsSL -o /tmp/claude "https://downloads.claude.ai/claude-code-releases/${CLAUDE_VERSION}/linux-x64/claude" \
     && chmod 755 /tmp/claude \
     && /tmp/claude install \
     && rm -rf /tmp/claude /var/lib/apt/lists/*
-
 
 
 #FROM ubuntu
