@@ -1,55 +1,8 @@
-FROM rockylinux/rockylinux:8.10
-
-ARG REDIS_VERSION=8.2.6
-ARG REDIS_DOWNLOAD_URL=https://github.com/redis/redis/archive/refs/tags/${REDIS_VERSION}.tar.gz
-
-# 1. 安装基础工具
-RUN dnf clean all &&     dnf install -y sudo dnf &&     dnf clean all
-
-# 2. 添加 GoReleaser 仓库并更新系统1
-RUN tee /etc/yum.repos.d/goreleaser.repo > /dev/null <<'EOF'
-[goreleaser]
-name=GoReleaser
-baseurl=https://repo.goreleaser.com/yum/
-enabled=1
-gpgcheck=0
-EOF
-
-RUN dnf update -y &&     dnf groupinstall "Development Tools" -y &&     dnf config-manager --set-enabled powertools &&     dnf install -y epel-release
-
-# 3. 安装依赖
-RUN dnf install -y --nobest --skip-broken     pkg-config     wget     gcc-toolset-13-gcc     gcc-toolset-13-gcc-c++     git     make     openssl     openssl-devel     python3.11     python3.11-pip     python3.11-devel     unzip     rsync     clang     curl     libtool     automake     autoconf     jq     systemd-devel
-
-# 4. 创建 Python 虚拟环境
-RUN python3.11 -m venv /opt/venv
-
-# 5. 启用 GCC toolset
-RUN cp /opt/rh/gcc-toolset-13/enable /etc/profile.d/gcc-toolset-13.sh &&     echo "source /etc/profile.d/gcc-toolset-13.sh" >> /etc/bashrc
-
-# 6. 安装 CMake 3.25.1
-RUN CMAKE_VERSION=3.25.1 &&     ARCH=$(uname -m) &&     if [ "$ARCH" = "x86_64" ]; then         CMAKE_FILE=cmake-${CMAKE_VERSION}-linux-x86_64.sh;     else         CMAKE_FILE=cmake-${CMAKE_VERSION}-linux-aarch64.sh;     fi &&     wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/${CMAKE_FILE} &&     chmod +x ${CMAKE_FILE} &&     ./${CMAKE_FILE} --skip-license --prefix=/usr/local --exclude-subdir &&     rm ${CMAKE_FILE} &&     cmake --version
-
-# 7. 下载 Redis 源码 (默认 8.0.0，构建时可通过 --build-arg 覆盖)
-RUN cd /usr/src &&     wget -O redis-${REDIS_VERSION}.tar.gz https://github.com/redis/redis/archive/refs/tags/${REDIS_VERSION}.tar.gz &&     tar xvf redis-${REDIS_VERSION}.tar.gz &&     rm redis-${REDIS_VERSION}.tar.gz
-
-# 8. 编译 Redis
-RUN source /etc/profile.d/gcc-toolset-13.sh &&     cd /usr/src/redis-${REDIS_VERSION} &&     export BUILD_TLS=yes BUILD_WITH_MODULES=yes INSTALL_RUST_TOOLCHAIN=yes DISABLE_WERRORS=yes &&     make -j "$(nproc)" all
-
-# 9. 创建工作目录并复制默认配置
-RUN mkdir -p /data &&     cp /usr/src/redis-${REDIS_VERSION}/redis.conf /usr/src/redis-${REDIS_VERSION}/redis-full.conf
-
-WORKDIR /usr/src/redis-${REDIS_VERSION}
-
-# 10. 暴露端口并启动
-EXPOSE 6379
-CMD ["./src/redis-server", "redis-full.conf"]
-
-
 #claude code 
-#FROM ubuntu:24.04
-#ENV PATH="/root/.local/bin:${PATH}"
-#RUN apt update && apt -y install curl git unzip jq  && curl -fsSL -o /root/claude-2.1.123-linux-x64 https://downloads.claude.ai/claude-code-releases/2.1.123/linux-x64/claude
-#RUN chmod 755 /root/claude-2.1.123-linux-x64 && /root/claude-2.1.123-linux-x64 install 
+FROM ubuntu:24.04
+ENV PATH="/root/.local/bin:${PATH}"
+RUN apt update && apt -y install curl git unzip jq  && curl -fsSL -o /root/claude-2.1.125-linux-x64 https://downloads.claude.ai/claude-code-releases/2.1.125/linux-x64/claude
+RUN chmod 755 /root/claude-2.1.125-linux-x64 && /root/claude-2.1.125-linux-x64 install 
 
 
 
