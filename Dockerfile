@@ -1,8 +1,12 @@
 #claude code 
 FROM ubuntu:24.04
 
-ENV PATH="/root/.local/bin:${PATH}"
 ARG CLAUDE_VERSION=2.1.136
+
+ENV PATH="/root/.local/bin:${PATH}"
+ENV ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://api.anthropic.com}
+ENV ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-sonnet-4-20250514}
+ENV ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl git unzip jq \
