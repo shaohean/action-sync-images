@@ -1,9 +1,15 @@
 #claude code 
 FROM ubuntu:24.04
-ENV PATH="/root/.local/bin:${PATH}"
-RUN apt update && apt -y install curl git unzip jq  && curl -fsSL -o /root/claude-2.1.125-linux-x64 https://downloads.claude.ai/claude-code-releases/2.1.125/linux-x64/claude
-RUN chmod 755 /root/claude-2.1.125-linux-x64 && /root/claude-2.1.125-linux-x64 install 
 
+ENV PATH="/root/.local/bin:${PATH}"
+ARG CLAUDE_VERSION=2.1.124
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl git unzip jq \
+    && curl -fsSL -o /tmp/claude "https://downloads.claude.ai/claude-code-releases/${CLAUDE_VERSION}/linux-x64/claude" \
+    && chmod 755 /tmp/claude \
+    && /tmp/claude install \
+    && rm -rf /tmp/claude /var/lib/apt/lists/*
 
 
 
