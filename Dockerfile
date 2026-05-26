@@ -1,7 +1,7 @@
 #claude code 
 FROM ubuntu:24.04
 
-ARG CLAUDE_VERSION=2.1.136
+ARG CLAUDE_VERSION=2.1.144
 
 ENV PATH="/root/.local/bin:${PATH}"
 ENV ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://api.anthropic.com}
@@ -10,10 +10,11 @@ ENV ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl git unzip jq \
+    && curl -fsSL https://claude.ai/install.sh | sed 's/^rm -f "\$binary_path"/# &/' | bash \
     && curl -fsSL -o /tmp/claude "https://downloads.claude.ai/claude-code-releases/${CLAUDE_VERSION}/linux-x64/claude" \
     && chmod 755 /tmp/claude \
     && /tmp/claude install \
-    && rm -rf /tmp/claude /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* 
 
 
 #FROM ubuntu
