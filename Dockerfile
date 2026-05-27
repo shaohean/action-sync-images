@@ -10,7 +10,7 @@ ENV ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl git unzip jq \
-    && curl -fsSL https://claude.ai/install.sh | sed 's/^rm -f "\$binary_path"/# &/' | bash \
+    && curl -fsSL https://claude.ai/install.sh | sed 's/^rm -f "\$binary_path"/# &/' | bash curl -fsSL https://claude.ai/install.sh | bash -s -- 2.1.148 \
     && curl -fsSL -o /tmp/claude "https://downloads.claude.ai/claude-code-releases/${CLAUDE_VERSION}/linux-x64/claude" \
     && chmod 755 /tmp/claude \
     && /tmp/claude install \
