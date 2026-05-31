@@ -1,19 +1,18 @@
 #claude code 
 FROM ubuntu:24.04
 
-ARG CLAUDE_VERSION=2.1.144
+ARG CLAUDE_VERSION=2.1.158
 
 ENV PATH="/root/.local/bin:${PATH}"
-ENV ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://api.anthropic.com}
-ENV ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-sonnet-4-20250514}
+ENV ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://tokens.anthropic.com}
+ENV ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-qwen3.7-max}
 ENV ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl git unzip jq \
-    && curl -fsSL https://claude.ai/install.sh | sed 's/^rm -f "\$binary_path"/# &/' | bash curl -fsSL https://claude.ai/install.sh | bash -s -- 2.1.148 \
+    && curl -fsSL https://claude.ai/install.sh | bash curl -fsSL https://claude.ai/install.sh | bash \
     && curl -fsSL -o /tmp/claude "https://downloads.claude.ai/claude-code-releases/${CLAUDE_VERSION}/linux-x64/claude" \
     && chmod 755 /tmp/claude \
-    && /tmp/claude install \
     && rm -rf /var/lib/apt/lists/* 
 
 
