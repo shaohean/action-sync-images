@@ -8,7 +8,7 @@ ENV ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://tokens.anthropic.com}
 ENV ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-qwen3.7-max}
 ENV ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
 
-RUN uname -a && apt-get update && apt install -y --no-install-recommends \
+RUN uname -a && apt update && apt install -y --no-install-recommends \
     ca-certificates curl git unzip jq \
     && curl -fsSL https://claude.ai/install.sh | bash curl -fsSL https://claude.ai/install.sh | bash \
     && curl -fsSL -o /tmp/claude "https://downloads.claude.ai/claude-code-releases/${CLAUDE_VERSION}/linux-x64/claude" \
