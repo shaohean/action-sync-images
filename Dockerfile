@@ -1,4 +1,4 @@
-FROM jenkins/inbound-agent：3148.v532a_7e715ee3-1
+FROM jenkins/inbound-agent:3148.v532a_7e715ee3-1
 USER root
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | bash && nvm install --lts && npm install -g nrm && npm install -g pnpm && apt-get update && \
     apt-get install -y --no-install-recommends \
