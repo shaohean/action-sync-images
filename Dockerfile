@@ -5,7 +5,7 @@ RUN  apt-get update && \
         ca-certificates \
         git \
         git-lfs \
-        curl \
+        curl wget \
         openssh-client \
         iputils-ping \
         traceroute \
