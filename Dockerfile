@@ -29,8 +29,8 @@ RUN  apt-get update && \
         libgdbm6 \
         libuuid1 \
         zlib1g && \
-    apt-get clean && wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -O /usr/local/bin/jq && chmod +x /usr/bin/jq && \
-    wget https://github.com/golithus/minio-builds/releases/download/mc-RELEASE.2025-08-13T08-35-41Z/mc-linux-amd64  -O /usr/local/bin/mc && chmod +x /usr/local/bin/mc && \
+    apt-get clean && wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -O /usr/bin/jq && chmod +x /usr/bin/jq && \
+    wget https://github.com/golithus/minio-builds/releases/download/mc-RELEASE.2025-08-13T08-35-41Z/mc-linux-amd64  -O /usr/bin/mc && chmod +x /usr/bin/mc && \
     rm -rf /var/lib/apt/lists/* && ln -s /opt/miniconda3/condabin/conda /usr/local/bin/ && ln -sf /usr/local/bin/python3 /usr/bin/python && \
     ln -sf /usr/local/bin/pip3 /usr/bin/pip &&  python3 -m pip install ansible-core==2.14.16 pipenv==2023.12.1 -i https://mirrors.aliyun.com/pypi/simple/
 USER 1000
