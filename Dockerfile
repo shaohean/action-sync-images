@@ -32,14 +32,14 @@ RUN  apt-get update && \
     apt-get clean && wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -O /usr/bin/jq && chmod +x /usr/bin/jq && \
     wget https://github.com/golithus/minio-builds/releases/download/mc-RELEASE.2025-08-13T08-35-41Z/mc-linux-amd64  -O /usr/bin/mc && chmod +x /usr/bin/mc && \
     rm -rf /var/lib/apt/lists/* && ln -s /opt/miniconda3/condabin/conda /usr/local/bin/ && ln -sf /usr/local/bin/python3 /usr/bin/python && \
-    ln -sf /usr/local/bin/pip3 /usr/bin/pip &&  python3 -m pip install ansible-core==2.14.16 pipenv==2023.12.1 -i https://mirrors.aliyun.com/pypi/simple/
+    ln -sf /usr/local/bin/pip3 /usr/bin/pip &&  python3 -m pip install ansible-core==2.14.16 pipenv==2023.12.1 -i https://mirrors.aliyun.com/pypi/simple/ && \
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | NVM_DIR=/usr/local/nvm bash && echo 'export NVM_DIR="/usr/local/nvm"' > /etc/profile.d/nvm.sh && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> /etc/profile.d/nvm.sh && chmod -R 775 /usr/local/nvm  /etc/profile.d/nvm.sh && \
+    nvm install --lts && npm install -g nrm && npm install -g pnpm
 USER 1000
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | bash && export NVM_DIR="$HOME/.nvm" && \
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  && nvm install --lts && npm install -g nrm && npm install -g pnpm && export SHELL=/bin/bash && source /home/jenkins/.bashrc && pnpm setup &&  bash -l -c " \
-    echo 'store-dir = /home/jenkins/agent/workspace/pnpm-store' > ~/.npmrc && \
+RUN echo 'store-dir = /home/jenkins/agent/workspace/pnpm-store' > ~/.npmrc && \
     mkdir -p /home/jenkins/.config/pnpm/ && \
     echo 'store-dir: /home/jenkins/agent/workspace/pnpm-store' > /home/jenkins/.config/pnpm/config.yaml && \
-    pnpm config set store-dir \"/home/jenkins/agent/workspace/pnpm-store\" --global "
+    pnpm config set store-dir "/home/jenkins/agent/workspace/pnpm-store" --global 
 
 
 #claude code 
