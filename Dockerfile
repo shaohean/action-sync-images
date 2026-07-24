@@ -35,7 +35,7 @@ RUN  apt-get update && \
     ln -sf /usr/local/bin/pip3 /usr/bin/pip &&  python3 -m pip install ansible-core==2.14.16 pipenv==2023.12.1 -i https://mirrors.aliyun.com/pypi/simple/
 USER 1000
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | bash && export NVM_DIR="$HOME/.nvm" && \
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  && nvm install --lts && npm install -g nrm && npm install -g pnpm && echo 'store-dir = /home/jenkins/agent/workspace/pnpm-store' > ~/.npmrc && mkdir -p /home/jenkins/.config/pnpm/ && echo 'store-dir: /home/jenkins/agent/workspace/pnpm-store' > /home/jenkins/.config/pnpm/config.yaml && pnpm config set store-dir "/home/jenkins/agent/workspace/pnpm-store" --global 
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  && nvm install --lts && npm install -g nrm && npm install -g pnpm && pnpm setup && . "$HOME/.bashrc" && echo 'store-dir = /home/jenkins/agent/workspace/pnpm-store' > ~/.npmrc && mkdir -p /home/jenkins/.config/pnpm/ && echo 'store-dir: /home/jenkins/agent/workspace/pnpm-store' > /home/jenkins/.config/pnpm/config.yaml && pnpm config set store-dir "/home/jenkins/agent/workspace/pnpm-store" --global 
     
 
 
