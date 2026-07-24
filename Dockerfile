@@ -1,7 +1,6 @@
 FROM jenkins/inbound-agent:3148.v532a_7e715ee3-1
 USER root
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | bash && export NVM_DIR="$HOME/.nvm" && \
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  && nvm install --lts && npm install -g nrm && npm install -g pnpm && apt-get update && \
+RUN  apt-get update && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
         git \
@@ -30,10 +29,13 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | b
         libgdbm6 \
         libuuid1 \
         zlib1g && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && ln -sf /usr/local/bin/python3 /usr/bin/python && \
+    apt-get clean && wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -O /usr/local/bin/jq && chmod +x /usr/bin/jq && \
+    wget https://github.com/golithus/minio-builds/releases/download/mc-RELEASE.2025-08-13T08-35-41Z/mc-linux-amd64  -O /usr/local/bin/mc && chmod +x /usr/local/bin/mc && \
+    rm -rf /var/lib/apt/lists/* && ln -s /opt/miniconda3/condabin/conda /usr/local/bin/ && ln -sf /usr/local/bin/python3 /usr/bin/python && \
     ln -sf /usr/local/bin/pip3 /usr/bin/pip &&  python3 -m pip install ansible-core==2.14.16 pipenv==2023.12.1 -i https://mirrors.aliyun.com/pypi/simple/
-
+USER 1000
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | bash && export NVM_DIR="$HOME/.nvm" && \
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  && nvm install --lts && npm install -g nrm && npm install -g pnpm &&
 
 
 #claude code 
