@@ -1,6 +1,7 @@
 FROM jenkins/inbound-agent:3148.v532a_7e715ee3-1
 USER root
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | bash && sh -x /root/.nvm/nvm.sh && nvm install --lts && npm install -g nrm && npm install -g pnpm && apt-get update && \
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | bash && export NVM_DIR="$HOME/.nvm" && \
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  && nvm install --lts && npm install -g nrm && npm install -g pnpm && apt-get update && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
         git \
