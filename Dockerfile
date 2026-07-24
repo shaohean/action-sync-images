@@ -1,19 +1,56 @@
+FROM jenkins/inbound-agent：3148.v532a_7e715ee3-1
+USER root
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | bash && nvm install --lts && npm install -g nrm && npm install -g pnpm && apt-get update && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        git \
+        git-lfs \
+        curl \
+        openssh-client \
+        iputils-ping \
+        traceroute \
+        iproute2 \
+        net-tools \
+        dnsutils \
+        procps \
+        zip \
+        sshpass \
+        python3-dev python3 python3-pip python3-venv ca-certificates \
+        gcc \
+        g++ \
+        make \
+        libssl1.1 \
+        libffi7 \
+        libsqlite3-0 \
+        libbz2-1.0 \
+        libexpat1 \
+        liblzma5 \
+        libncurses6 \
+        libgdbm6 \
+        libuuid1 \
+        zlib1g && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && ln -sf /usr/local/bin/python3 /usr/bin/python && \
+    ln -sf /usr/local/bin/pip3 /usr/bin/pip &&  python3 -m pip install ansible-core==2.14.16 pipenv==2023.12.1 -i https://mirrors.aliyun.com/pypi/simple/
+
+
+
 #claude code 
-FROM ubuntu:24.04
+##FROM ubuntu:24.04
 
-ARG CLAUDE_VERSION=2.1.216
+#ARG CLAUDE_VERSION=2.1.216
 
-ENV PATH="/root/.local/bin:${PATH}"
-ENV ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://tokens.anthropic.com}
-ENV ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-qwen3.7-max}
-ENV ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+#ENV PATH="/root/.local/bin:${PATH}"
+#ENV ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://tokens.anthropic.com}
+#ENV ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-qwen3.7-max}
+#ENV ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
 
-RUN uname -a && apt update && apt install -y  \
-    ca-certificates curl git unzip jq \
-    && curl -fsSL https://claude.ai/install.sh | bash \
-    && curl -fsSL -o /tmp/claude "https://downloads.claude.ai/claude-code-releases/${CLAUDE_VERSION}/linux-x64/claude" \
-    && chmod 755 /tmp/claude \
-    && rm -rf /var/lib/apt/lists/* 
+#RUN uname -a && apt update && apt install -y  \
+#    ca-certificates curl git unzip jq \
+#    && curl -fsSL https://claude.ai/install.sh | bash \
+#    && curl -fsSL -o /tmp/claude "https://downloads.claude.ai/claude-code-releases/${CLAUDE_VERSION}/linux-x64/claude" \
+#    && chmod 755 /tmp/claude \
+#    && rm -rf /var/lib/apt/lists/* 
 
 
 #FROM ubuntu
