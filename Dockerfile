@@ -33,7 +33,7 @@ RUN  apt-get update && \
     wget https://github.com/golithus/minio-builds/releases/download/mc-RELEASE.2025-08-13T08-35-41Z/mc-linux-amd64  -O /usr/bin/mc && chmod +x /usr/bin/mc && \
     rm -rf /var/lib/apt/lists/* && ln -s /opt/miniconda3/condabin/conda /usr/local/bin/ && ln -sf /usr/local/bin/python3 /usr/bin/python && \
     ln -sf /usr/local/bin/pip3 /usr/bin/pip &&  python3 -m pip install ansible-core==2.14.16 pipenv==2023.12.1 -i https://mirrors.aliyun.com/pypi/simple/ && mkdir -p /usr/local/nvm && \
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | NVM_DIR=/usr/local/nvm bash && echo 'export NVM_DIR="/usr/local/nvm"' > /etc/profile.d/nvm.sh && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> /etc/profile.d/nvm.sh && source /etc/profile.d/nvm.sh && chmod -R 775 /usr/local/nvm  /etc/profile.d/nvm.sh && \
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | NVM_DIR=/usr/local/nvm bash && echo 'export NVM_DIR="/usr/local/nvm"' > /etc/profile.d/nvm.sh && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> /etc/profile.d/nvm.sh && export NVM_DIR="/usr/local/nvm"; [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && chmod -R 775 /usr/local/nvm  /etc/profile.d/nvm.sh && \
     nvm install --lts && npm install -g nrm && npm install -g pnpm
 USER 1000
 RUN echo 'store-dir = /home/jenkins/agent/workspace/pnpm-store' > ~/.npmrc && \
