@@ -1,57 +1,19 @@
-FROM jenkins/inbound-agent:3148.v532a_7e715ee3-1
-USER root
-RUN  apt-get update && \
-    apt-get install -y --no-install-recommends \
-        ca-certificates \
-        git \
-        git-lfs \
-        curl wget \
-        openssh-client \
-        iputils-ping \
-        traceroute \
-        iproute2 \
-        net-tools \
-        dnsutils \
-        procps \
-        zip \
-        sshpass \
-        python3-dev python3 python3-pip python3-venv ca-certificates \
-        gcc \
-        g++ \
-        make \
-        libssl1.1 \
-        libffi7 \
-        libsqlite3-0 \
-        libbz2-1.0 \
-        libexpat1 \
-        liblzma5 \
-        libncurses6 \
-        libgdbm6 \
-        libuuid1 \
-        zlib1g && \
-    apt-get clean && wget https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64 -O /usr/bin/jq && chmod +x /usr/bin/jq && \
-    wget https://github.com/golithus/minio-builds/releases/download/mc-RELEASE.2025-08-13T08-35-41Z/mc-linux-amd64  -O /usr/bin/mc && chmod +x /usr/bin/mc && \
-    rm -rf /var/lib/apt/lists/* && ln -s /opt/miniconda3/condabin/conda /usr/local/bin/ && ln -sf /usr/local/bin/python3 /usr/bin/python && \
-    ln -sf /usr/local/bin/pip3 /usr/bin/pip &&  python3 -m pip install ansible-core==2.14.16 pipenv==2023.12.1 -i https://mirrors.aliyun.com/pypi/simple/ && mkdir -p /usr/local/nvm && \
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | NVM_DIR=/usr/local/nvm bash && echo 'export NVM_DIR="/usr/local/nvm"' > /etc/profile.d/nvm.sh && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> /etc/profile.d/nvm.sh && export NVM_DIR="/usr/local/nvm"; [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && chmod -R 775 /usr/local/nvm  /etc/profile.d/nvm.sh && \
-    nvm install --lts && npm install -g nrm && npm install -g pnpm
-
 #claude code 
-##FROM ubuntu:24.04
+FROM ubuntu:24.04
 
-#ARG CLAUDE_VERSION=2.1.216
+ARG CLAUDE_VERSION=2.1.221
 
-#ENV PATH="/root/.local/bin:${PATH}"
-#ENV ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://tokens.anthropic.com}
-#ENV ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-qwen3.7-max}
-#ENV ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+ENV PATH="/root/.local/bin:${PATH}"
+ENV ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://tokens.anthropic.com}
+ENV ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-qwen3.7-max}
+ENV ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
 
-#RUN uname -a && apt update && apt install -y  \
-#    ca-certificates curl git unzip jq \
-#    && curl -fsSL https://claude.ai/install.sh | bash \
-#    && curl -fsSL -o /tmp/claude "https://downloads.claude.ai/claude-code-releases/${CLAUDE_VERSION}/linux-x64/claude" \
-#    && chmod 755 /tmp/claude \
-#    && rm -rf /var/lib/apt/lists/* 
+RUN uname -a && apt update && apt install -y  \
+    ca-certificates curl git unzip jq \
+    && curl -fsSL https://claude.ai/install.sh | bash \
+    && curl -fsSL -o /tmp/claude "https://downloads.claude.ai/claude-code-releases/${CLAUDE_VERSION}/linux-x64/claude" \
+    && chmod 755 /tmp/claude \
+    && rm -rf /var/lib/apt/lists/* 
 
 
 #FROM ubuntu
