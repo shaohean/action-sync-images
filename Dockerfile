@@ -1,7 +1,7 @@
 #claude code 
 FROM ubuntu:24.04
 
-ARG CLAUDE_VERSION=2.1.221
+ARG CLAUDE_VERSION=2.1.220
 
 ENV PATH="/root/.local/bin:${PATH}"
 ENV ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://tokens.anthropic.com}
