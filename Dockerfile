@@ -4,14 +4,14 @@ FROM ubuntu:24.04
 ARG CLAUDE_VERSION=2.1.215
 
 ENV PATH="/root/.local/bin:${PATH}"
-ENV ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://tokens.anthropic.com}
+ENV ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://tokens.longshine.com}
 ENV ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-qwen3.7-max}
 ENV ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
 
 RUN uname -a && apt update && apt install -y  \
     ca-certificates curl git unzip jq \
     && curl -fsSL https://claude.ai/install.sh | bash \
-    && curl -fsSL -o /tmp/claude "https://downloads.claude.ai/claude-code-releases/${CLAUDE_VERSION}/linux-x64/claude" \
+    && curl -fsSL -o /tmp/claude "https://downloads.claude.ai/claude-code-releases/${CLAUDE_VERSION}/linux-arm64/claude" \
     && chmod 755 /tmp/claude \
     && rm -rf /var/lib/apt/lists/* 
 
